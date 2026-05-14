@@ -28,6 +28,53 @@ function showMessage(elementId, message, isSuccess) {
     }
 }
 
+// ========== МАСКА ДЛЯ ТЕЛЕФОНА ==========
+function phoneMask(input) {
+    let value = input.value.replace(/\D/g, '');
+    if (value.length > 11) value = value.slice(0, 11);
+    
+    let formattedValue = '';
+    if (value.length > 0) {
+        formattedValue = '+7';
+        if (value.length > 1) {
+            const code = value.slice(1, 4);
+            formattedValue += ` (${code}`;
+            if (value.length > 4) {
+                const firstPart = value.slice(4, 7);
+                formattedValue += `) ${firstPart}`;
+                if (value.length > 7) {
+                    const secondPart = value.slice(7, 9);
+                    formattedValue += `-${secondPart}`;
+                    if (value.length > 9) {
+                        const thirdPart = value.slice(9, 11);
+                        formattedValue += `-${thirdPart}`;
+                    }
+                }
+            } else {
+                formattedValue += `)`;
+            }
+        }
+    }
+    input.value = formattedValue;
+}
+
+function validatePhone(phone) {
+    if (!phone || phone === '') return true;
+    const phoneRegex = /^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/;
+    return phoneRegex.test(phone);
+}
+
+function initPhoneMasks() {
+    const phoneInputs = document.querySelectorAll('#bookingPhone, #regPhone, #profilePhone');
+    phoneInputs.forEach(input => {
+        if (input) {
+            input.addEventListener('input', function() { phoneMask(this); });
+            input.addEventListener('focus', function() { if (this.value === '') this.value = '+7'; });
+            input.addEventListener('blur', function() { if (this.value === '+7') this.value = ''; });
+        }
+    });
+}
+
 // ========== ИНИЦИАЛИЗАЦИЯ ==========
 function initData() {
     let users = localStorage.getItem('fjell_users');
@@ -52,9 +99,9 @@ function initData() {
     let news = localStorage.getItem('fjell_news');
     if (!news) {
         const defaultNews = [
-            { id: 1, title: "Новый шеф-повар из Норвегии", date: "2026-03-15", excerpt: "Ларс Хансен присоединился к нашей команде!", fullText: "Полный текст...", image: "assets/images/news-chef.jpg", onMain: true },
-            { id: 2, title: "Сезонное меню: весна 2026", date: "2026-03-01", excerpt: "Весеннее обновление меню!", fullText: "Полный текст...", image: "assets/images/news-spring.jpg", onMain: true },
-            { id: 3, title: "Бронирование столов онлайн", date: "2026-02-20", excerpt: "Теперь бронировать стало проще!", fullText: "Полный текст...", image: "assets/images/news-booking.jpg", onMain: true }
+            { id: 1, title: "Новый шеф-повар из Норвегии", date: "2026-03-15", excerpt: "Ларс Хансен присоединился к нашей команде!", fullText: "Полный текст новости...", image: "assets/images/news-chef.jpg", onMain: true },
+            { id: 2, title: "Сезонное меню: весна 2026", date: "2026-03-01", excerpt: "Весеннее обновление меню!", fullText: "Полный текст новости...", image: "assets/images/news-spring.jpg", onMain: true },
+            { id: 3, title: "Бронирование столов онлайн", date: "2026-02-20", excerpt: "Теперь бронировать стало проще!", fullText: "Полный текст новости...", image: "assets/images/news-booking.jpg", onMain: true }
         ];
         localStorage.setItem('fjell_news', JSON.stringify(defaultNews));
     }
@@ -242,6 +289,10 @@ function initAuthForms() {
                 showMessage('registerMessage', 'Пароль должен быть не менее 6 символов', false);
                 return;
             }
+            if (phone && phone !== '+7' && !validatePhone(phone)) {
+                showMessage('registerMessage', 'Введите номер в формате +7 (999) 123-45-67', false);
+                return;
+            }
             
             const users = JSON.parse(localStorage.getItem('fjell_users') || '[]');
             if (users.some(u => u.email === email)) {
@@ -313,10 +364,24 @@ function loadProfile() {
                     <h4>Бронирование от ${formatDate(b.date)}</h4>
                     <p>📅 ${formatDate(b.date)} в ${b.time}</p>
                     <p>👥 ${b.guests} гостей</p>
+                    <p>📞 ${b.phone}</p>
                     <p>📝 ${b.notes || 'без пожеланий'}</p>
                     <span class="booking-status status-${b.status}">${getStatusText(b.status)}</span>
+                    ${b.status === 'pending' ? `<button class="cancel-booking" data-id="${b.id}">Отменить бронь</button>` : ''}
                 </div>
             `).join('');
+            
+            document.querySelectorAll('.cancel-booking').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.dataset.id);
+                    if (confirm('Отменить бронирование?')) {
+                        let bookings = JSON.parse(localStorage.getItem('fjell_bookings') || '[]');
+                        bookings = bookings.map(b => b.id === id ? { ...b, status: 'cancelled' } : b);
+                        localStorage.setItem('fjell_bookings', JSON.stringify(bookings));
+                        loadProfile();
+                    }
+                });
+            });
         }
     }
 }
@@ -332,6 +397,11 @@ function initProfileForm() {
         
         const newName = document.getElementById('profileName').value;
         const newPhone = document.getElementById('profilePhone').value;
+        
+        if (newPhone && !validatePhone(newPhone)) {
+            showMessage('profileMessage', 'Введите номер в формате +7 (999) 123-45-67', false);
+            return;
+        }
         
         const users = JSON.parse(localStorage.getItem('fjell_users') || '[]');
         const userIndex = users.findIndex(u => u.email === currentUser.email);
@@ -392,8 +462,16 @@ function initBookingForm() {
         const time = document.getElementById('bookingTime').value;
         const notes = document.getElementById('bookingNotes').value;
         
-        if (!name || !phone || !date || !time) {
-            showMessage('bookingMessage', 'Заполните все обязательные поля', false);
+        if (!name) {
+            showMessage('bookingMessage', 'Введите имя', false);
+            return;
+        }
+        if (!validatePhone(phone)) {
+            showMessage('bookingMessage', 'Введите номер в формате +7 (999) 123-45-67', false);
+            return;
+        }
+        if (!date || !time) {
+            showMessage('bookingMessage', 'Выберите дату и время', false);
             return;
         }
         
@@ -417,111 +495,17 @@ function initBookingForm() {
     });
 }
 
-// ========== ГАЛЕРЕЯ ==========
-function initGallery() {
-    const galleryGrid = document.getElementById('galleryGrid');
-    if (!galleryGrid) return;
-    
-    const images = [
-        { src: "assets/images/interior-1.jpg", category: "interior", title: "Основной зал с камином" },
-        { src: "assets/images/interior-2.jpg", category: "interior", title: "Веранда Fjell" },
-        { src: "assets/images/dish-1.jpg", category: "dishes", title: "Гравлакс" },
-        { src: "assets/images/dish-2.jpg", category: "dishes", title: "Оленина" },
-        { src: "assets/images/view-1.jpg", category: "view", title: "Вид на озеро" }
-    ];
-    
-    let currentFilter = 'all';
-    
-    function render() {
-        let filtered = images;
-        if (currentFilter !== 'all') {
-            filtered = images.filter(img => img.category === currentFilter);
-        }
-        
-        galleryGrid.innerHTML = filtered.map(img => `
-            <div class="gallery-item" onclick="openGalleryImage('${img.src}', '${img.title}')">
-                <img src="${img.src}" alt="${img.title}" onerror="this.src='https://placehold.co/400x300/2C2C2C/D97C4A'">
-                <div class="gallery-item-overlay">
-                    <p class="gallery-item-title">${img.title}</p>
-                </div>
-            </div>
-        `).join('');
-    }
-    
-    window.openGalleryImage = function(src, title) {
-        const modal = document.getElementById('galleryModal');
-        if (modal) {
-            document.getElementById('modalImage').src = src;
-            document.getElementById('modalCaption').textContent = title;
-            modal.classList.add('active');
-        }
-    };
-    
-    document.querySelectorAll('.gallery-filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.gallery-filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = btn.dataset.filter;
-            render();
-        });
-    });
-    
-    render();
-    
-    const modal = document.getElementById('galleryModal');
-    const close = document.querySelector('.gallery-modal-close');
-    if (close) close.onclick = () => modal.classList.remove('active');
-    if (modal) modal.onclick = (e) => { if (e.target === modal) modal.classList.remove('active'); };
-}
-
-// ========== АФИША (КАЛЕНДАРЬ) ==========
-function initCalendar() {
-    const calendarDays = document.getElementById('calendarDays');
-    if (!calendarDays) return;
-    
-    const events = JSON.parse(localStorage.getItem('fjell_events') || '[]');
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
-    
-    const firstDay = new Date(currentYear, currentMonth, 1);
-    const lastDay = new Date(currentYear, currentMonth + 1, 0);
-    let startDay = firstDay.getDay();
-    startDay = startDay === 0 ? 6 : startDay - 1;
-    const daysInMonth = lastDay.getDate();
-    
-    let html = '';
-    for (let i = 0; i < startDay; i++) {
-        html += `<div class="calendar-day other-month"></div>`;
-    }
-    for (let day = 1; day <= daysInMonth; day++) {
-        const hasEvent = events.some(e => new Date(e.date).getDate() === day);
-        html += `<div class="calendar-day ${hasEvent ? 'event-day' : ''}">${day}</div>`;
-    }
-    calendarDays.innerHTML = html;
-    
-    // Список событий
-    const eventsList = document.getElementById('eventsList');
-    if (eventsList) {
-        eventsList.innerHTML = events.map(e => `
-            <div class="event-item" onclick="alert('${e.title}\n${e.fullDescription || e.description}')">
-                <div class="event-item-image" style="background-image: url('${e.image}');"></div>
-                <div class="event-item-content">
-                    <h3>${e.title}</h3>
-                    <p>${formatDate(e.date)} в ${e.time}</p>
-                    <p>${e.description}</p>
-                </div>
-            </div>
-        `).join('');
-    }
-}
-
 // ========== НОВОСТИ (СТРАНИЦА) ==========
 function renderNewsList() {
     const container = document.getElementById('newsContainer');
     if (!container) return;
     
     const news = JSON.parse(localStorage.getItem('fjell_news') || '[]');
+    
+    if (news.length === 0) {
+        container.innerHTML = '<p>Новостей пока нет</p>';
+        return;
+    }
     
     container.innerHTML = news.map(item => `
         <div class="news-card" onclick="openNewsModal(${item.id})">
@@ -556,6 +540,167 @@ window.closeNewsModal = function() {
     if (modal) modal.classList.remove('active');
 };
 
+// Закрытие по Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('newsDetailModal');
+        if (modal) modal.classList.remove('active');
+        const galleryModal = document.getElementById('galleryModal');
+        if (galleryModal) galleryModal.classList.remove('active');
+        const eventModal = document.getElementById('eventModal');
+        if (eventModal) eventModal.classList.remove('active');
+    }
+});
+
+// ========== ГАЛЕРЕЯ ==========
+function initGallery() {
+    const galleryGrid = document.getElementById('galleryGrid');
+    if (!galleryGrid) return;
+    
+    const images = [
+        { src: "assets/images/interior-1.jpg", category: "interior", title: "Основной зал с камином" },
+        { src: "assets/images/interior-2.jpg", category: "interior", title: "Веранда Fjell" },
+        { src: "assets/images/interior-3.jpg", category: "interior", title: "Скандинавский стиль" },
+        { src: "assets/images/dish-1.jpg", category: "dishes", title: "Гравлакс" },
+        { src: "assets/images/dish-2.jpg", category: "dishes", title: "Оленина" },
+        { src: "assets/images/dish-3.jpg", category: "dishes", title: "Кладдкака" },
+        { src: "assets/images/view-1.jpg", category: "view", title: "Вид на озеро" },
+        { src: "assets/images/view-2.jpg", category: "view", title: "Вид из окна" },
+        { src: "assets/images/view-3.jpg", category: "view", title: "Зимний пейзаж" }
+    ];
+    
+    let currentFilter = 'all';
+    
+    function render() {
+        let filtered = images;
+        if (currentFilter !== 'all') {
+            filtered = images.filter(img => img.category === currentFilter);
+        }
+        
+        if (filtered.length === 0) {
+            galleryGrid.innerHTML = '<p style="text-align:center;">Фотографий нет</p>';
+            return;
+        }
+        
+        galleryGrid.innerHTML = filtered.map(img => `
+            <div class="gallery-item" onclick="openGalleryImage('${img.src}', '${img.title}')">
+                <img src="${img.src}" alt="${img.title}" onerror="this.src='https://placehold.co/400x300/2C2C2C/D97C4A'">
+                <div class="gallery-item-overlay">
+                    <p class="gallery-item-title">${img.title}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    window.openGalleryImage = function(src, title) {
+        const modal = document.getElementById('galleryModal');
+        if (modal) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('modalCaption').textContent = title;
+            modal.classList.add('active');
+        }
+    };
+    
+    const filterBtns = document.querySelectorAll('.gallery-filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter = btn.dataset.filter;
+            render();
+        });
+    });
+    
+    render();
+    
+    const modal = document.getElementById('galleryModal');
+    const close = document.querySelector('.gallery-modal-close');
+    if (close) close.onclick = () => modal.classList.remove('active');
+    if (modal) modal.onclick = (e) => { if (e.target === modal) modal.classList.remove('active'); };
+}
+
+// ========== АФИША ==========
+function initEvents() {
+    const calendarDays = document.getElementById('calendarDays');
+    if (!calendarDays) return;
+    
+    const events = JSON.parse(localStorage.getItem('fjell_events') || '[]');
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    const firstDay = new Date(currentYear, currentMonth, 1);
+    const lastDay = new Date(currentYear, currentMonth + 1, 0);
+    let startDay = firstDay.getDay();
+    startDay = startDay === 0 ? 6 : startDay - 1;
+    const daysInMonth = lastDay.getDate();
+    
+    let html = '';
+    for (let i = 0; i < startDay; i++) {
+        html += `<div class="calendar-day other-month"></div>`;
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+        const hasEvent = events.some(e => new Date(e.date).getDate() === day);
+        html += `<div class="calendar-day ${hasEvent ? 'event-day' : ''}">${day}</div>`;
+    }
+    calendarDays.innerHTML = html;
+    
+    // Список событий
+    const eventsList = document.getElementById('eventsList');
+    if (eventsList) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const futureEvents = events.filter(e => new Date(e.date) >= today).sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        if (futureEvents.length === 0) {
+            eventsList.innerHTML = '<p>Нет предстоящих событий</p>';
+            return;
+        }
+        
+        eventsList.innerHTML = futureEvents.map(e => `
+            <div class="event-item" onclick="openEventModal(${e.id})">
+                <div class="event-item-image" style="background-image: url('${e.image}');"></div>
+                <div class="event-item-content">
+                    <h3>${e.title}</h3>
+                    <p>${formatDate(e.date)} в ${e.time}</p>
+                    <p>${e.description}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // Переключение между календарем и списком
+    const viewBtns = document.querySelectorAll('.view-btn');
+    viewBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            viewBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const view = btn.dataset.view;
+            document.getElementById('calendarView').style.display = view === 'calendar' ? 'block' : 'none';
+            document.getElementById('listView').style.display = view === 'list' ? 'block' : 'none';
+        });
+    });
+}
+
+window.openEventModal = function(eventId) {
+    const events = JSON.parse(localStorage.getItem('fjell_events') || '[]');
+    const event = events.find(e => e.id === eventId);
+    if (!event) return;
+    
+    const modal = document.getElementById('eventModal');
+    if (modal) {
+        document.getElementById('modalTitle').textContent = event.title;
+        document.getElementById('modalDate').textContent = `${formatDate(event.date)} в ${event.time}`;
+        document.getElementById('modalImage').src = event.image;
+        document.getElementById('modalDescription').textContent = event.fullDescription || event.description;
+        modal.classList.add('active');
+        
+        const closeBtn = modal.querySelector('.event-modal-close');
+        if (closeBtn) closeBtn.onclick = () => modal.classList.remove('active');
+        modal.onclick = (e) => { if (e.target === modal) modal.classList.remove('active'); };
+    }
+};
+
 // ========== АДМИН-ПАНЕЛЬ ==========
 function initAdminPanel() {
     const currentUser = JSON.parse(localStorage.getItem('fjell_currentUser'));
@@ -565,6 +710,13 @@ function initAdminPanel() {
         return;
     }
     console.log('Админ-панель загружена');
+}
+
+// ========== ИЗБРАННЫЕ СОБЫТИЯ ==========
+function loadUserFavorites() {
+    const container = document.getElementById('favoritesList');
+    if (!container) return;
+    container.innerHTML = '<div class="empty-favorites">⭐ У вас пока нет избранных событий</div>';
 }
 
 // ========== ЗАПУСК ==========
@@ -578,13 +730,15 @@ document.addEventListener('DOMContentLoaded', function() {
     initAuthForms();
     initLogout();
     initBookingForm();
+    initPhoneMasks();
     initGallery();
-    initCalendar();
+    initEvents();
     
     if (document.getElementById('profileName')) {
         loadProfile();
         initProfileForm();
         initProfileTabs();
+        loadUserFavorites();
     }
     
     if (document.querySelector('.news-section')) {
