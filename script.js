@@ -535,7 +535,7 @@ function initBookingForm() {
     if (dateInput) {
         dateInput.min = new Date().toISOString().split('T')[0];
     }
-    
+}
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         const name = document.getElementById('bookingName').value;
