@@ -82,84 +82,33 @@ function updateNavButtons() {
     }
 }
 
-// ========== БУРГЕР-МЕНЮ (РАБОТАЕТ НА ВСЕХ СТРАНИЦАХ) ==========
+// ========== БУРГЕР-МЕНЮ ==========
 function initBurgerMenu() {
-    // Находим все бургер-иконки и меню на странице
-    const burgerIcons = document.querySelectorAll('.burger-icon');
-    const mobileMenus = document.querySelectorAll('.mobile-menu');
-    const closeBtns = document.querySelectorAll('.close-menu');
+    const burgerIcon = document.getElementById('burgerIcon');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const closeMenu = document.getElementById('closeMenu');
     
-    // Функция открытия меню
-    function openMenu(menu) {
-        if (menu) {
-            menu.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-    }
-    
-    // Функция закрытия меню
-    function closeMenu(menu) {
-        if (menu) {
-            menu.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-    }
-    
-    // Закрыть все меню
-    function closeAllMenus() {
-        mobileMenus.forEach(menu => {
-            menu.classList.remove('active');
-        });
-        document.body.style.overflow = '';
-    }
-    
-    // Обработчики для иконок бургера
-    burgerIcons.forEach((icon, index) => {
-        icon.addEventListener('click', function(e) {
+    if (burgerIcon && mobileMenu) {
+        burgerIcon.addEventListener('click', function(e) {
             e.preventDefault();
-            e.stopPropagation();
-            const menu = mobileMenus[index];
-            if (menu) {
-                if (menu.classList.contains('active')) {
-                    closeMenu(menu);
-                } else {
-                    closeAllMenus();
-                    openMenu(menu);
-                }
-            }
+            mobileMenu.classList.add('active');
+            document.body.classList.add('menu-open');
         });
-    });
+    }
     
-    // Обработчики для кнопок закрытия
-    closeBtns.forEach((btn, index) => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const menu = mobileMenus[index];
-            closeMenu(menu);
+    if (closeMenu && mobileMenu) {
+        closeMenu.addEventListener('click', function() {
+            mobileMenu.classList.remove('active');
+            document.body.classList.remove('menu-open');
         });
-    });
+    }
     
-    // Закрытие при клике вне меню
     document.addEventListener('click', function(e) {
-        mobileMenus.forEach(menu => {
-            if (menu && menu.classList.contains('active')) {
-                let isClickInside = false;
-                burgerIcons.forEach(icon => {
-                    if (icon.contains(e.target)) isClickInside = true;
-                });
-                if (menu.contains(e.target)) isClickInside = true;
-                
-                if (!isClickInside) {
-                    closeMenu(menu);
-                }
+        if (mobileMenu && mobileMenu.classList.contains('active')) {
+            if (!mobileMenu.contains(e.target) && !burgerIcon.contains(e.target)) {
+                mobileMenu.classList.remove('active');
+                document.body.classList.remove('menu-open');
             }
-        });
-    });
-    
-    // Закрытие при нажатии Escape
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeAllMenus();
         }
     });
 }
@@ -398,7 +347,6 @@ function initMenuFilters() {
 
 // ========== ВХОД/РЕГИСТРАЦИЯ ==========
 function initAuthForms() {
-    // ===== ФОРМА ВХОДА =====
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {
@@ -423,71 +371,6 @@ function initAuthForms() {
             }
         });
     }
-    
-    // ===== ФОРМА РЕГИСТРАЦИИ =====
-    const registerForm = document.getElementById('registerForm');
-    if (registerForm) {
-        registerForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const phone = document.getElementById('regPhone').value;
-            const password = document.getElementById('regPassword').value;
-            const confirm = document.getElementById('regConfirmPassword').value;
-            
-            // Проверка обязательных полей
-            if (!name || !email || !password) {
-                showMessage('registerMessage', 'Заполните все обязательные поля', false);
-                return;
-            }
-            
-            // Проверка паролей
-            if (password !== confirm) {
-                showMessage('registerMessage', 'Пароли не совпадают', false);
-                return;
-            }
-            
-            // Проверка длины пароля
-            if (password.length < 6) {
-                showMessage('registerMessage', 'Пароль должен быть не менее 6 символов', false);
-                return;
-            }
-            
-            // ✅ ВАЛИДАЦИЯ ТЕЛЕФОНА (если поле заполнено)
-            if (phone && !validatePhone(phone)) {
-                showMessage('registerMessage', 'Введите номер телефона в формате +7 (999) 123-45-67', false);
-                return;
-            }
-            
-            // Проверка уникальности email
-            const users = JSON.parse(localStorage.getItem('fjell_users') || '[]');
-            if (users.some(u => u.email === email)) {
-                showMessage('registerMessage', 'Пользователь с таким email уже существует', false);
-                return;
-            }
-            
-            // Создание нового пользователя
-            const newUser = {
-                id: users.length + 1,
-                name: name,
-                email: email,
-                password: password,
-                phone: phone || '',
-                isAdmin: false
-            };
-            
-            users.push(newUser);
-            localStorage.setItem('fjell_users', JSON.stringify(users));
-            localStorage.setItem('fjell_currentUser', JSON.stringify(newUser));
-            
-            showMessage('registerMessage', 'Регистрация успешна!', true);
-            setTimeout(() => {
-                window.location.href = 'profile.html';
-            }, 1000);
-        });
-    }
-}
     
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
@@ -604,12 +487,6 @@ function initProfileForm() {
         const newName = document.getElementById('profileName').value;
         const newPhone = document.getElementById('profilePhone').value;
         
-        // ВАЛИДАЦИЯ ТЕЛЕФОНА (если поле заполнено)
-        if (newPhone && !validatePhone(newPhone)) {
-            showMessage('profileMessage', 'Введите номер в формате +7 (999) 123-45-67', false);
-            return;
-        }
-        
         const users = JSON.parse(localStorage.getItem('fjell_users') || '[]');
         const userIndex = users.findIndex(u => u.email === currentUser.email);
         
@@ -661,7 +538,6 @@ function initBookingForm() {
     
     form.addEventListener('submit', function(e) {
         e.preventDefault();
-        
         const name = document.getElementById('bookingName').value;
         const phone = document.getElementById('bookingPhone').value;
         const email = document.getElementById('bookingEmail').value;
@@ -687,7 +563,6 @@ function initBookingForm() {
             notes: notes,
             status: 'pending'
         };
-        
         bookings.push(newBooking);
         localStorage.setItem('fjell_bookings', JSON.stringify(bookings));
         showMessage('bookingMessage', 'Бронирование отправлено! Мы свяжемся с вами.', true);
