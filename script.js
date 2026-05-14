@@ -499,16 +499,8 @@ function removeFromFavorites(eventId) {
 }
 
 // ========== ЗАПУСК ==========
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Сайт загружен');
-    initData();
-    initBurgerMenu();
-    loadLatestNews();
-    loadEventsPreview();
-    initMenuFilters();
-    initAuthForms();
-    initLogout();
-    initBookingForm();
+    initCalendar();      // ← ДОБАВИТЬ для афиши
+    initGallery();       // ← ДОБАВИТЬ для галереи
     
     if (document.getElementById('profileName')) {
         loadProfile();
@@ -524,4 +516,274 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.querySelector('.admin-section')) {
         initAdminPanel();
     }
+});
+    // ========== КАЛЕНДАРЬ СОБЫТИЙ (АФИША) ==========
+
+let currentCalendarDate = new Date();
+
+function getEvents() {
+    return JSON.parse(localStorage.getItem('fjell_events') || '[]');
+}
+
+function renderCalendar() {
+    const container = document.getElementById('calendarDays');
+    if (!container) return;
+    
+    const monthSpan = document.getElementById('currentMonth');
+    if (monthSpan) {
+        monthSpan.textContent = currentCalendarDate.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
+    }
+    
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    let startDay = firstDay.getDay();
+    startDay = startDay === 0 ? 6 : startDay - 1;
+    const daysInMonth = lastDay.getDate();
+    
+    const events = getEvents();
+    const eventsByDate = {};
+    events.forEach(event => {
+        const eventDate = new Date(event.date);
+        if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+            const dayKey = eventDate.getDate();
+            if (!eventsByDate[dayKey]) eventsByDate[dayKey] = [];
+            eventsByDate[dayKey].push(event);
+        }
+    });
+    
+    let html = '';
+    for (let i = 0; i < startDay; i++) {
+        html += `<div class="calendar-day other-month"></div>`;
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+        const hasEvent = eventsByDate[day] && eventsByDate[day].length > 0;
+        html += `<div class="calendar-day ${hasEvent ? 'event-day' : ''}" data-day="${day}">${day}</div>`;
+    }
+    container.innerHTML = html;
+    
+    document.querySelectorAll('.calendar-day.event-day').forEach(dayEl => {
+        dayEl.addEventListener('click', () => {
+            const day = parseInt(dayEl.dataset.day);
+            const eventsOfDay = eventsByDate[day] || [];
+            if (eventsOfDay.length > 0) {
+                openEventModal(eventsOfDay[0].id);
+            }
+        });
+    });
+}
+
+function renderEventsList() {
+    const container = document.getElementById('eventsList');
+    if (!container) return;
+    
+    const events = getEvents();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const futureEvents = events.filter(e => new Date(e.date) >= today).sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    if (futureEvents.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:50px;">Нет предстоящих событий</div>';
+        return;
+    }
+    
+    container.innerHTML = futureEvents.map(event => `
+        <div class="event-item" onclick="openEventModal(${event.id})">
+            <div class="event-item-image" style="background-image: url('${event.image}');"></div>
+            <div class="event-item-content">
+                <h3 class="event-item-title">${event.title}</h3>
+                <p class="event-item-date">${formatDate(event.date)} в ${event.time}</p>
+                <p class="event-item-desc">${event.description}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function switchView(view) {
+    const calendarView = document.getElementById('calendarView');
+    const listView = document.getElementById('listView');
+    const btns = document.querySelectorAll('.view-btn');
+    
+    btns.forEach(btn => {
+        if (btn.dataset.view === view) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+    
+    if (view === 'calendar') {
+        if (calendarView) calendarView.style.display = 'block';
+        if (listView) listView.style.display = 'none';
+        renderCalendar();
+    } else {
+        if (calendarView) calendarView.style.display = 'none';
+        if (listView) listView.style.display = 'block';
+        renderEventsList();
+    }
+}
+
+function initCalendar() {
+    const prev = document.getElementById('prevMonth');
+    const next = document.getElementById('nextMonth');
+    const viewBtns = document.querySelectorAll('.view-btn');
+    
+    if (prev) {
+        prev.addEventListener('click', () => {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            renderCalendar();
+        });
+    }
+    if (next) {
+        next.addEventListener('click', () => {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            renderCalendar();
+        });
+    }
+    viewBtns.forEach(btn => {
+        btn.addEventListener('click', () => switchView(btn.dataset.view));
+    });
+    renderCalendar();
+}
+
+window.openEventModal = function(eventId) {
+    const events = getEvents();
+    const event = events.find(e => e.id === eventId);
+    if (!event) return;
+    
+    const modal = document.getElementById('eventModal');
+    if (!modal) return;
+    
+    document.getElementById('modalTitle').textContent = event.title;
+    document.getElementById('modalDate').textContent = `${formatDate(event.date)} в ${event.time}`;
+    const modalImg = document.getElementById('modalImage');
+    if (modalImg) modalImg.src = event.image;
+    document.getElementById('modalDescription').textContent = event.fullDescription || event.description;
+    
+    modal.classList.add('active');
+    
+    const closeBtn = modal.querySelector('.event-modal-close');
+    if (closeBtn) closeBtn.onclick = () => modal.classList.remove('active');
+    modal.onclick = (e) => { if (e.target === modal) modal.classList.remove('active'); };
+    
+    const favBtn = document.getElementById('markFavoriteBtn');
+    if (favBtn) {
+        favBtn.onclick = () => {
+            addToFavorites(event.id);
+            alert('Событие добавлено в избранное!');
+        };
+    }
+};
+
+// ========== ГАЛЕРЕЯ ==========
+
+const galleryImages = [
+    { id: 1, src: "assets/images/interior-1.jpg", category: "interior", title: "Основной зал с камином" },
+    { id: 2, src: "assets/images/interior-2.jpg", category: "interior", title: "Веранда Fjell" },
+    { id: 3, src: "assets/images/interior-3.jpg", category: "interior", title: "Скандинавский стиль" },
+    { id: 4, src: "assets/images/dish-1.jpg", category: "dishes", title: "Гравлакс с соусом" },
+    { id: 5, src: "assets/images/dish-2.jpg", category: "dishes", title: "Оленина с брусникой" },
+    { id: 6, src: "assets/images/dish-3.jpg", category: "dishes", title: "Кладдкака с мороженым" },
+    { id: 7, src: "assets/images/view-1.jpg", category: "view", title: "Вид на озеро" },
+    { id: 8, src: "assets/images/view-2.jpg", category: "view", title: "Вид из окна" },
+    { id: 9, src: "assets/images/view-3.jpg", category: "view", title: "Зимний пейзаж" }
+];
+
+let currentGalleryFilter = 'all';
+let currentImageIndex = 0;
+
+function renderGallery() {
+    const grid = document.getElementById('galleryGrid');
+    if (!grid) return;
+    
+    let filtered = galleryImages;
+    if (currentGalleryFilter !== 'all') {
+        filtered = galleryImages.filter(img => img.category === currentGalleryFilter);
+    }
+    
+    if (filtered.length === 0) {
+        grid.innerHTML = '<p style="text-align:center;">Фотографий в этой категории пока нет</p>';
+        return;
+    }
+    
+    grid.innerHTML = filtered.map((img, idx) => `
+        <div class="gallery-item" data-index="${idx}">
+            <img src="${img.src}" alt="${img.title}" onerror="this.src='https://placehold.co/400x300/2C2C2C/D97C4A?text=Fjell'">
+            <div class="gallery-item-overlay">
+                <p class="gallery-item-title">${img.title}</p>
+            </div>
+        </div>
+    `).join('');
+    
+    document.querySelectorAll('.gallery-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const idx = parseInt(item.dataset.index);
+            openGalleryModal(idx, currentGalleryFilter);
+        });
+    });
+}
+
+function openGalleryModal(index, filter) {
+    let filtered = galleryImages;
+    if (filter !== 'all') filtered = galleryImages.filter(img => img.category === filter);
+    currentImageIndex = index;
+    const image = filtered[index];
+    
+    const modal = document.getElementById('galleryModal');
+    if (modal) {
+        document.getElementById('modalImage').src = image.src;
+        document.getElementById('modalCaption').textContent = image.title;
+        modal.classList.add('active');
+        modal.dataset.filter = filter;
+    }
+}
+
+function changeGalleryImage(direction) {
+    const modal = document.getElementById('galleryModal');
+    const filter = modal?.dataset.filter || 'all';
+    let filtered = galleryImages;
+    if (filter !== 'all' && filter !== 'undefined') {
+        filtered = galleryImages.filter(img => img.category === filter);
+    }
+    
+    let newIndex = currentImageIndex + direction;
+    if (newIndex < 0) newIndex = filtered.length - 1;
+    if (newIndex >= filtered.length) newIndex = 0;
+    currentImageIndex = newIndex;
+    
+    const image = filtered[newIndex];
+    document.getElementById('modalImage').src = image.src;
+    document.getElementById('modalCaption').textContent = image.title;
+}
+
+function initGallery() {
+    const btns = document.querySelectorAll('.gallery-filter-btn');
+    btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            btns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentGalleryFilter = btn.dataset.filter;
+            renderGallery();
+        });
+    });
+    renderGallery();
+    
+    const modal = document.getElementById('galleryModal');
+    const close = document.querySelector('.gallery-modal-close');
+    const prev = document.getElementById('modalPrev');
+    const next = document.getElementById('modalNext');
+    
+    if (close) close.onclick = () => modal.classList.remove('active');
+    if (prev) prev.onclick = () => changeGalleryImage(-1);
+    if (next) next.onclick = () => changeGalleryImage(1);
+    if (modal) modal.onclick = (e) => { if (e.target === modal) modal.classList.remove('active'); };
+    document.addEventListener('keydown', (e) => {
+        if (modal?.classList.contains('active')) {
+            if (e.key === 'ArrowLeft') changeGalleryImage(-1);
+            if (e.key === 'ArrowRight') changeGalleryImage(1);
+            if (e.key === 'Escape') modal.classList.remove('active');
+        }
+    });
+}
 });
