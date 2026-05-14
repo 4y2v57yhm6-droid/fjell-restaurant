@@ -670,19 +670,8 @@ function initBookingForm() {
         const time = document.getElementById('bookingTime').value;
         const notes = document.getElementById('bookingNotes').value;
         
-        if (!name) {
-            showMessage('bookingMessage', 'Введите имя', false);
-            return;
-        }
-        
-        // ВАЛИДАЦИЯ ТЕЛЕФОНА
-        if (!validatePhone(phone)) {
-            showMessage('bookingMessage', 'Введите номер в формате +7 (999) 123-45-67', false);
-            return;
-        }
-        
-        if (!date || !time) {
-            showMessage('bookingMessage', 'Выберите дату и время', false);
+        if (!name || !phone || !date || !time) {
+            showMessage('bookingMessage', 'Заполните все обязательные поля', false);
             return;
         }
         
@@ -701,7 +690,7 @@ function initBookingForm() {
         
         bookings.push(newBooking);
         localStorage.setItem('fjell_bookings', JSON.stringify(bookings));
-        showMessage('bookingMessage', 'Бронирование отправлено!', true);
+        showMessage('bookingMessage', 'Бронирование отправлено! Мы свяжемся с вами.', true);
         form.reset();
         if (dateInput) dateInput.min = new Date().toISOString().split('T')[0];
     });
@@ -827,7 +816,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initLogout();
     initBookingForm();
     loadUserFavorites();
-    initPhoneMasks();
     
     if (document.getElementById('profileName')) {
         loadProfile();
@@ -1410,53 +1398,4 @@ function updateFavoriteButton(eventId) {
         btn.innerHTML = '⭐ В избранное';
         btn.classList.remove('active');
     }
-}
-// ========== МАСКА ДЛЯ ТЕЛЕФОНА (единый формат) ==========
-
-// Функция маскирования телефона
-function phoneMask(input) {
-    let value = input.value.replace(/\D/g, '');
-    if (value.length > 11) value = value.slice(0, 11);
-    
-    let formattedValue = '';
-    if (value.length > 0) {
-        formattedValue = '+7';
-        if (value.length > 1) {
-            const code = value.slice(1, 4);
-            formattedValue += ` (${code}`;
-            if (value.length > 4) {
-                const firstPart = value.slice(4, 7);
-                formattedValue += `) ${firstPart}`;
-                if (value.length > 7) {
-                    const secondPart = value.slice(7, 9);
-                    formattedValue += `-${secondPart}`;
-                    if (value.length > 9) {
-                        const thirdPart = value.slice(9, 11);
-                        formattedValue += `-${thirdPart}`;
-                    }
-                }
-            } else {
-                formattedValue += `)`;
-            }
-        }
-    }
-    input.value = formattedValue;
-}
-
-// Валидация телефона
-function validatePhone(phone) {
-    const phoneRegex = /^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/;
-    return phoneRegex.test(phone);
-}
-
-// Инициализация маски для всех полей телефона
-function initPhoneMasks() {
-    const phoneInputs = document.querySelectorAll('#bookingPhone, #regPhone, #profilePhone');
-    phoneInputs.forEach(input => {
-        if (input) {
-            input.addEventListener('input', function() { phoneMask(this); });
-            input.addEventListener('focus', function() { if (this.value === '') this.value = '+7'; });
-            input.addEventListener('blur', function() { if (this.value === '+7') this.value = ''; });
-        }
-    });
 }
