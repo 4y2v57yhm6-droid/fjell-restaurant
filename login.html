@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход | Fjell</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-container">
+            <div class="logo"><span class="logo-text">Fjell</span></div>
+            <nav class="nav desktop-nav">
+                <a href="index.html" class="nav-link">Главная</a>
+                <a href="contacts.html" class="nav-link">Контакты</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="auth-section">
+            <div class="container">
+                <div class="auth-container">
+                    <div class="auth-box">
+                        <h2 class="auth-title">Вход в личный кабинет</h2>
+                        <form id="loginForm">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="loginEmail" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Пароль</label>
+                                <input type="password" id="loginPassword" class="form-input" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-full">Войти</button>
+                            <div id="loginMessage" class="form-message"></div>
+                        </form>
+                        <p class="auth-footer">Нет аккаунта? <a href="register.html" class="auth-link">Зарегистрироваться</a></p>
+                        <p class="auth-footer" style="margin-top: 10px; font-size: 12px;">Тестовый вход: anna@test.ru / 123456</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

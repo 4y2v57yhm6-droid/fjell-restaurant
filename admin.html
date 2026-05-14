@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель | Fjell</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="header">
+    <div class="container header-container">
+        <div class="logo">
+            <span class="logo-text">Fjell Admin</span>
+            <span class="logo-accent">панель управления</span>
+        </div>
+        <nav class="nav desktop-nav">
+            <a href="index.html" class="nav-link">На сайт</a>
+            <a href="#" id="adminLogout" class="nav-link login-btn">Выйти</a>
+        </nav>
+        <div class="burger-menu">
+            <div class="burger-icon" id="burgerIcon">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+        <span class="logo-text">Fjell Admin</span>
+        <div class="close-menu" id="closeMenu">&times;</div>
+    </div>
+    <nav class="mobile-nav">
+        <a href="index.html" class="mobile-nav-link">На сайт</a>
+        <a href="#" class="mobile-nav-link" id="mobileAdminLogout">Выйти</a>
+    </nav>
+</div>
+
+<main class="admin-page">
+    <div class="container">
+        <div class="admin-welcome">
+            <h1>Панель управления</h1>
+            <p>Добро пожаловать в административную панель ресторана Fjell</p>
+        </div>
+
+        <!-- Статистика -->
+        <div class="admin-stats">
+            <div class="stat-card">
+                <div class="stat-icon">🍽️</div>
+                <div class="stat-info">
+                    <h3 id="statMenu">0</h3>
+                    <p>Блюд в меню</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎵</div>
+                <div class="stat-info">
+                    <h3 id="statEvents">0</h3>
+                    <p>Событий</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📰</div>
+                <div class="stat-info">
+                    <h3 id="statNews">0</h3>
+                    <p>Новостей</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-info">
+                    <h3 id="statUsers">0</h3>
+                    <p>Пользователей</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-info">
+                    <h3 id="statBookings">0</h3>
+                    <p>Бронирований</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладки -->
+        <div class="admin-tabs">
+            <button class="admin-tab active" data-tab="menu">📋 Меню</button>
+            <button class="admin-tab" data-tab="events">🎵 События</button>
+            <button class="admin-tab" data-tab="news">📰 Новости</button>
+            <button class="admin-tab" data-tab="users">👥 Пользователи</button>
+            <button class="admin-tab" data-tab="bookings">📅 Бронирования</button>
+        </div>
+
+        <!-- Меню -->
+        <div id="tabMenu" class="admin-tab-content active">
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h3>Управление меню</h3>
+                    <button class="btn-add" onclick="alert('Добавление блюда')">+ Добавить блюдо</button>
+                </div>
+                <div id="adminMenuList" class="admin-items-list">
+                    <!-- Загружается -->
+                </div>
+            </div>
+        </div>
+
+        <!-- События -->
+        <div id="tabEvents" class="admin-tab-content">
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h3>Управление событиями</h3>
+                    <button class="btn-add" onclick="alert('Добавление события')">+ Добавить событие</button>
+                </div>
+                <div id="adminEventsList" class="admin-items-list">
+                    <!-- Загружается -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Новости -->
+        <div id="tabNews" class="admin-tab-content">
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h3>Управление новостями</h3>
+                    <button class="btn-add" onclick="alert('Добавление новости')">+ Добавить новость</button>
+                </div>
+                <div id="adminNewsList" class="admin-items-list">
+                    <!-- Загружается -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Пользователи -->
+        <div id="tabUsers" class="admin-tab-content">
+            <div class="admin-card">
+                <h3>Список пользователей</h3>
+                <div id="adminUsersList" class="admin-items-list">
+                    <!-- Загружается -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Бронирования -->
+        <div id="tabBookings" class="admin-tab-content">
+            <div class="admin-card">
+                <h3>Все бронирования</h3>
+                <div id="adminBookingsList" class="admin-items-list">
+                    <!-- Загружается -->
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-bottom">
+            <p>© 2026 Fjell. Административная панель</p>
+        </div>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

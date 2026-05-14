@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новости | Fjell - Ресторан скандинавской кухни</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="header">
+    <div class="container header-container">
+        <div class="logo">
+            <span class="logo-text">Fjell</span>
+            <span class="logo-accent caveat">скандинавская кухня</span>
+        </div>
+        <nav class="nav desktop-nav">
+            <a href="index.html" class="nav-link">Главная</a>
+            <a href="about.html" class="nav-link">О нас</a>
+            <a href="menu.html" class="nav-link">Меню</a>
+            <a href="gallery.html" class="nav-link">Галерея</a>
+            <a href="events.html" class="nav-link">Афиша</a>
+            <a href="news.html" class="nav-link active">Новости</a>
+            <a href="contacts.html" class="nav-link">Контакты</a>
+            <a href="login.html" class="nav-link login-btn" id="loginNavBtn">Войти</a>
+            <a href="profile.html" class="nav-link" id="profileNavBtn" style="display:none;">Личный кабинет</a>
+        </nav>
+        <div class="burger-menu">
+            <div class="burger-icon" id="burgerIcon">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+        <span class="logo-text">Fjell</span>
+        <div class="close-menu" id="closeMenu">&times;</div>
+    </div>
+    <nav class="mobile-nav">
+        <a href="index.html" class="mobile-nav-link">Главная</a>
+        <a href="about.html" class="mobile-nav-link">О нас</a>
+        <a href="menu.html" class="mobile-nav-link">Меню</a>
+        <a href="gallery.html" class="mobile-nav-link">Галерея</a>
+        <a href="events.html" class="mobile-nav-link">Афиша</a>
+        <a href="news.html" class="mobile-nav-link">Новости</a>
+        <a href="contacts.html" class="mobile-nav-link">Контакты</a>
+        <a href="login.html" class="mobile-nav-link" id="mobileLoginLink">Войти</a>
+        <a href="profile.html" class="mobile-nav-link" id="mobileProfileLink" style="display:none;">Личный кабинет</a>
+    </nav>
+</div>
+
+<main class="news-page">
+    <section class="page-header news-header">
+        <div class="page-header-overlay"></div>
+        <div class="container">
+            <h1 class="page-title">Новости ресторана</h1>
+            <p class="page-subtitle">Актуальные события, акции и обновления</p>
+        </div>
+    </section>
+
+    <section class="news-section">
+        <div class="container">
+            <div id="newsContainer" class="news-list">
+                <!-- Новости загружаются сюда -->
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Модальное окно для детального просмотра новости -->
+<div id="newsDetailModal" class="news-modal">
+    <div class="news-modal-content">
+        <div class="news-modal-header">
+            <h2 id="detailTitle">Заголовок</h2>
+            <span class="news-modal-close" onclick="closeNewsModal()">&times;</span>
+        </div>
+        <div class="news-modal-body">
+            <div class="news-modal-date" id="detailDate"></div>
+            <img id="detailImage" class="news-modal-image" src="" alt="">
+            <div class="news-modal-text" id="detailContent"></div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="container footer-container">
+        <div class="footer-col">
+            <h3 class="footer-title">Fjell</h3>
+            <p class="footer-text">Ресторан скандинавской кухни<br>в самом сердце города</p>
+        </div>
+        <div class="footer-col">
+            <h4 class="footer-subtitle">Часы работы</h4>
+            <p class="footer-text">Пн-Чт: 12:00 - 23:00<br>Пт-Вс: 12:00 - 01:00</p>
+        </div>
+        <div class="footer-col">
+            <h4 class="footer-subtitle">Контакты</h4>
+            <p class="footer-text">+7 (927) 926-20-10<br>info@fjell.ru</p>
+        </div>
+        <div class="footer-col">
+            <h4 class="footer-subtitle">Адрес</h4>
+            <p class="footer-text">респ. Башкортостан, Государственный заповедник Шульган-Таш</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2026 Fjell. Все права защищены.</p>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

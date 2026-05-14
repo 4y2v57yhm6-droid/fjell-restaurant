@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fjell - Тестовая версия</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #1E1E1E;
+            color: #F5F5F5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: #2C2C2C;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 36px;
+            font-weight: bold;
+            color: #D97C4A;
+        }
+        
+        .nav {
+            margin-top: 15px;
+        }
+        
+        .nav a {
+            color: #F5F5F5;
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 8px 16px;
+            background: #3A3A3A;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        
+        .nav a:hover {
+            background: #D97C4A;
+        }
+        
+        .hero {
+            background: #2C2C2C;
+            padding: 60px;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            background: #D97C4A;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+            display: inline-block;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background: #c56a3a;
+        }
+        
+        .section {
+            background: #2C2C2C;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .section h2 {
+            margin-bottom: 20px;
+            color: #D97C4A;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #1E1E1E;
+            border: 1px solid #3A3A3A;
+            border-radius: 8px;
+            color: white;
+        }
+        
+        button {
+            background: #D97C4A;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background: #c56a3a;
+        }
+        
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .message.success {
+            background: rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+            display: block;
+        }
+        
+        .message.error {
+            background: rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+            display: block;
+        }
+        
+        .row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .col {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .user-info {
+            background: #3A3A3A;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Fjell</div>
+            <div class="nav">
+                <a href="#" onclick="showPage('home')">Главная</a>
+                <a href="#" onclick="showPage('menu')">Меню</a>
+                <a href="#" onclick="showPage('profile')">Личный кабинет</a>
+                <a href="#" onclick="showPage('admin')">Админка</a>
+            </div>
+        </div>
+        
+        <!-- Главная страница -->
+        <div id="page-home" class="page">
+            <div class="hero">
+                <h1>Fjell</h1>
+                <p style="font-size: 24px; color: #D97C4A; margin-bottom: 20px;">Тёплый свет среди холодных гор</p>
+                <button class="btn" onclick="showPage('profile')">Войти / Регистрация</button>
+                <button class="btn" onclick="showPage('menu')">Меню</button>
+            </div>
+            
+            <div class="section">
+                <h2>О ресторане</h2>
+                <p>Ресторан скандинавской кухни в самом сердце города. Современная интерпретация северных рецептов: оленина, рыба, лесные ягоды, травы.</p>
+            </div>
+        </div>
+        
+        <!-- Страница меню -->
+        <div id="page-menu" class="page" style="display: none;">
+            <div class="section">
+                <h2>Наше меню</h2>
+                <div class="row">
+                    <div class="col">
+                        <h3>Закуски</h3>
+                        <p>🥗 Гравлакс - 890 ₽</p>
+                        <p>🍞 Смёрброд с креветками - 750 ₽</p>
+                    </div>
+                    <div class="col">
+                        <h3>Горячее</h3>
+                        <p>🥩 Оленина с брусничным соусом - 1850 ₽</p>
+                        <p>🐟 Лосось с соусом из укропа - 1450 ₽</p>
+                    </div>
+                    <div class="col">
+                        <h3>Десерты</h3>
+                        <p>🍰 Кладдкака - 520 ₽</p>
+                        <p>🍓 Десерт с морошкой - 480 ₽</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Личный кабинет / Вход -->
+        <div id="page-profile" class="page" style="display: none;">
+            <div class="section">
+                <h2 id="profileTitle">Вход в личный кабинет</h2>
+                
+                <div id="loginForm">
+                    <input type="email" id="loginEmail" placeholder="Email" value="test@test.ru">
+                    <input type="password" id="loginPassword" placeholder="Пароль" value="123456">
+                    <button onclick="login()">Войти</button>
+                    <button onclick="showRegister()" style="background: #3A3A3A;">Зарегистрироваться</button>
+                    <div id="loginMessage" class="message"></div>
+                </div>
+                
+                <div id="registerForm" style="display: none;">
+                    <input type="text" id="regName" placeholder="Имя" value="Тестовый Пользователь">
+                    <input type="email" id="regEmail" placeholder="Email" value="test@test.ru">
+                    <input type="tel" id="regPhone" placeholder="Телефон" value="+7 (999) 123-45-67">
+                    <input type="password" id="regPassword" placeholder="Пароль" value="123456">
+                    <input type="password" id="regConfirmPassword" placeholder="Подтвердите пароль" value="123456">
+                    <button onclick="register()">Зарегистрироваться</button>
+                    <button onclick="showLogin()" style="background: #3A3A3A;">Назад к входу</button>
+                    <div id="registerMessage" class="message"></div>
+                </div>
+                
+                <div id="userDashboard" style="display: none;">
+                    <div class="user-info">
+                        <p><strong>👤 Имя:</strong> <span id="userName"></span></p>
+                        <p><strong>📧 Email:</strong> <span id="userEmail"></span></p>
+                        <p><strong>📞 Телефон:</strong> <span id="userPhone"></span></p>
+                    </div>
+                    <button onclick="logout()">Выйти</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Админка -->
+        <div id="page-admin" class="page" style="display: none;">
+            <div class="section">
+                <h2>Панель администратора</h2>
+                <div id="adminPanel">
+                    <p>Войдите как администратор (admin@fjell.ru / admin123)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Инициализация данных
+        function initData() {
+            // Пользователи
+            let users = localStorage.getItem('test_users');
+            if (!users) {
+                const defaultUsers = [
+                    { id: 1, name: "Администратор", email: "admin@fjell.ru", password: "admin123", phone: "+7 (999) 000-00-00", isAdmin: true },
+                    { id: 2, name: "Тестовый Пользователь", email: "test@test.ru", password: "123456", phone: "+7 (999) 123-45-67", isAdmin: false }
+                ];
+                localStorage.setItem('test_users', JSON.stringify(defaultUsers));
+            }
+            
+            let currentUser = localStorage.getItem('test_currentUser');
+            if (!currentUser || currentUser === 'null') {
+                localStorage.setItem('test_currentUser', JSON.stringify(null));
+            }
+        }
+        
+        // Показать страницу
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+            document.getElementById('page-' + page).style.display = 'block';
+            
+            if (page === 'profile') {
+                updateProfileUI();
+            }
+            if (page === 'admin') {
+                updateAdminUI();
+            }
+        }
+        
+        // Обновить UI профиля
+        function updateProfileUI() {
+            const currentUser = JSON.parse(localStorage.getItem('test_currentUser'));
+            
+            if (currentUser && currentUser.id) {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('userDashboard').style.display = 'block';
+                document.getElementById('profileTitle').textContent = 'Личный кабинет';
+                document.getElementById('userName').textContent = currentUser.name;
+                document.getElementById('userEmail').textContent = currentUser.email;
+                document.getElementById('userPhone').textContent = currentUser.phone || 'не указан';
+            } else {
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('userDashboard').style.display = 'none';
+                document.getElementById('profileTitle').textContent = 'Вход в личный кабинет';
+            }
+        }
+        
+        // Вход
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const users = JSON.parse(localStorage.getItem('test_users'));
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            const msgDiv = document.getElementById('loginMessage');
+            
+            if (user) {
+                localStorage.setItem('test_currentUser', JSON.stringify(user));
+                msgDiv.className = 'message success';
+                msgDiv.textContent = '✅ Вход выполнен успешно!';
+                setTimeout(() => {
+                    updateProfileUI();
+                    if (user.isAdmin) {
+                        showPage('admin');
+                    }
+                }, 1000);
+            } else {
+                msgDiv.className = 'message error';
+                msgDiv.textContent = '❌ Неверный email или пароль';
+                setTimeout(() => {
+                    msgDiv.className = 'message';
+                    msgDiv.textContent = '';
+                }, 3000);
+            }
+        }
+        
+        // Регистрация
+        function register() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const phone = document.getElementById('regPhone').value;
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirmPassword').value;
+            
+            const msgDiv = document.getElementById('registerMessage');
+            
+            if (!name || !email || !password) {
+                msgDiv.className = 'message error';
+                msgDiv.textContent = '❌ Заполните все обязательные поля';
+                return;
+            }
+            
+            if (password !== confirm) {
+                msgDiv.className = 'message error';
+                msgDiv.textContent = '❌ Пароли не совпадают';
+                return;
+            }
+            
+            const users = JSON.parse(localStorage.getItem('test_users'));
+            
+            if (users.some(u => u.email === email)) {
+                msgDiv.className = 'message error';
+                msgDiv.textContent = '❌ Пользователь с таким email уже существует';
+                return;
+            }
+            
+            const newUser = {
+                id: users.length + 1,
+                name: name,
+                email: email,
+                password: password,
+                phone: phone,
+                isAdmin: false
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('test_users', JSON.stringify(users));
+            localStorage.setItem('test_currentUser', JSON.stringify(newUser));
+            
+            msgDiv.className = 'message success';
+            msgDiv.textContent = '✅ Регистрация успешна!';
+            setTimeout(() => {
+                showPage('profile');
+                updateProfileUI();
+            }, 1000);
+        }
+        
+        // Выход
+        function logout() {
+            localStorage.setItem('test_currentUser', JSON.stringify(null));
+            updateProfileUI();
+            showPage('home');
+        }
+        
+        function showRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('profileTitle').textContent = 'Регистрация';
+        }
+        
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('profileTitle').textContent = 'Вход в личный кабинет';
+        }
+        
+        function updateAdminUI() {
+            const currentUser = JSON.parse(localStorage.getItem('test_currentUser'));
+            const adminPanel = document.getElementById('adminPanel');
+            
+            if (currentUser && currentUser.isAdmin) {
+                const users = JSON.parse(localStorage.getItem('test_users'));
+                adminPanel.innerHTML = `
+                    <h3>Добро пожаловать, ${currentUser.name}!</h3>
+                    <p>Вы вошли как администратор.</p>
+                    <h4>Список пользователей:</h4>
+                    ${users.map(u => `<p>📧 ${u.email} - ${u.name} ${u.isAdmin ? '(Админ)' : ''}</p>`).join('')}
+                    <button onclick="logout()" style="margin-top: 20px;">Выйти</button>
+                `;
+            } else {
+                adminPanel.innerHTML = `
+                    <p>Доступ запрещён. Необходимы права администратора.</p>
+                    <button onclick="showPage('profile')">Войти как администратор</button>
+                    <p style="margin-top: 15px;">Тестовый админ: admin@fjell.ru / admin123</p>
+                `;
+            }
+        }
+        
+        // Запуск
+        initData();
+        showPage('home');
+    </script>
+</body>
+</html>
