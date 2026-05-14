@@ -1452,24 +1452,11 @@ function validatePhone(phone) {
 // Инициализация маски для всех полей телефона
 function initPhoneMasks() {
     const phoneInputs = document.querySelectorAll('#bookingPhone, #regPhone, #profilePhone');
-    
     phoneInputs.forEach(input => {
         if (input) {
-            input.addEventListener('input', function() {
-                phoneMask(this);
-            });
-            
-            input.addEventListener('focus', function() {
-                if (this.value === '') {
-                    this.value = '+7';
-                }
-            });
-            
-            input.addEventListener('blur', function() {
-                if (this.value === '+7') {
-                    this.value = '';
-                }
-            });
+            input.addEventListener('input', function() { phoneMask(this); });
+            input.addEventListener('focus', function() { if (this.value === '') this.value = '+7'; });
+            input.addEventListener('blur', function() { if (this.value === '+7') this.value = ''; });
         }
     });
 }
