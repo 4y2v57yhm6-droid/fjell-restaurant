@@ -569,57 +569,28 @@ function initProfileTabs() {
 
 // ========== БРОНИРОВАНИЕ ==========
 function initBookingForm() {
-    const form = document.getElementById('bookingForm');
-    if (!form) return;
-    
-    const currentUser = JSON.parse(localStorage.getItem('fjell_currentUser'));
-    if (currentUser && currentUser.id && !currentUser.isAdmin) {
-        const nameInput = document.getElementById('bookingName');
-        const phoneInput = document.getElementById('bookingPhone');
-        const emailInput = document.getElementById('bookingEmail');
-        if (nameInput) nameInput.value = currentUser.name || '';
-        if (phoneInput) phoneInput.value = currentUser.phone || '';
-        if (emailInput) emailInput.value = currentUser.email || '';
-    }
-    
-    const dateInput = document.getElementById('bookingDate');
-    if (dateInput) {
-        dateInput.min = new Date().toISOString().split('T')[0];
-    }
-    
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const name = document.getElementById('bookingName').value;
-        const phone = document.getElementById('bookingPhone').value;
-        const email = document.getElementById('bookingEmail').value;
-        const guests = document.getElementById('bookingGuests').value;
-        const date = document.getElementById('bookingDate').value;
-        const time = document.getElementById('bookingTime').value;
-        const notes = document.getElementById('bookingNotes').value;
-        
-        if (!name || !phone || !date || !time) {
-            showMessage('bookingMessage', 'Заполните все обязательные поля', false);
-            return;
-        }
-        
-        const bookings = JSON.parse(localStorage.getItem('fjell_bookings') || '[]');
-        const newBooking = {
-            id: bookings.length + 1,
-            name: name,
-            phone: phone,
-            email: email || '',
-            guests: parseInt(guests),
-            date: date,
-            time: time,
-            notes: notes,
-            status: 'pending'
-        };
-        bookings.push(newBooking);
-        localStorage.setItem('fjell_bookings', JSON.stringify(bookings));
-        showMessage('bookingMessage', 'Бронирование отправлено! Мы свяжемся с вами.', true);
-        form.reset();
-        if (dateInput) dateInput.min = new Date().toISOString().split('T')[0];
-    });
+    // Внутри initBookingForm, после получения значений
+const name = document.getElementById('bookingName').value;
+const phone = document.getElementById('bookingPhone').value;
+const email = document.getElementById('bookingEmail').value;
+const guests = document.getElementById('bookingGuests').value;
+const date = document.getElementById('bookingDate').value;
+const time = document.getElementById('bookingTime').value;
+const notes = document.getElementById('bookingNotes').value;
+
+if (!name) {
+    showMessage('bookingMessage', 'Введите имя', false);
+    return;
+}
+
+if (!validatePhone(phone)) {
+    showMessage('bookingMessage', 'Введите номер телефона в формате +7 (999) 123-45-67', false);
+    return;
+}
+
+if (!date || !time) {
+    showMessage('bookingMessage', 'Выберите дату и время', false);
+    return;
 }
 
 // ========== ГАЛЕРЕЯ ==========
@@ -742,6 +713,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initLogout();
     initBookingForm();
     loadUserFavorites();
+    initPhoneMask();
     
     if (document.getElementById('profileName')) {
         loadProfile();
@@ -1324,4 +1296,86 @@ function updateFavoriteButton(eventId) {
         btn.innerHTML = '⭐ В избранное';
         btn.classList.remove('active');
     }
+}
+// ========== МАСКА ДЛЯ ТЕЛЕФОНА ==========
+
+function phoneMask(input) {
+    // Удаляем все не-цифры
+    let value = input.value.replace(/\D/g, '');
+    
+    // Ограничиваем длину (11 цифр для российского номера)
+    if (value.length > 11) value = value.slice(0, 11);
+    
+    // Применяем маску +7 (XXX) XXX-XX-XX
+    let formattedValue = '';
+    
+    if (value.length > 0) {
+        // Начинаем с +7
+        formattedValue = '+7';
+        
+        if (value.length > 1) {
+            // Код оператора (3 цифры)
+            const code = value.slice(1, 4);
+            formattedValue += ` (${code}`;
+            
+            if (value.length > 4) {
+                // Первая часть номера (3 цифры)
+                const firstPart = value.slice(4, 7);
+                formattedValue += `) ${firstPart}`;
+                
+                if (value.length > 7) {
+                    // Вторая часть (2 цифры)
+                    const secondPart = value.slice(7, 9);
+                    formattedValue += `-${secondPart}`;
+                    
+                    if (value.length > 9) {
+                        // Третья часть (2 цифры)
+                        const thirdPart = value.slice(9, 11);
+                        formattedValue += `-${thirdPart}`;
+                    }
+                } else if (value.length > 4) {
+                    formattedValue += `) ${firstPart}`;
+                }
+            } else {
+                formattedValue += `)`;
+            }
+        }
+    }
+    
+    input.value = formattedValue;
+}
+
+// Инициализация маски для телефона
+function initPhoneMask() {
+    const phoneInputs = document.querySelectorAll('#bookingPhone, #regPhone, #profilePhone');
+    
+    phoneInputs.forEach(input => {
+        if (input) {
+            // При вводе
+            input.addEventListener('input', function(e) {
+                phoneMask(this);
+            });
+            
+            // При фокусе, если поле пустое - ставим +7
+            input.addEventListener('focus', function() {
+                if (this.value === '') {
+                    this.value = '+7';
+                }
+            });
+            
+            // При потере фокуса, если остался только +7 - очищаем
+            input.addEventListener('blur', function() {
+                if (this.value === '+7') {
+                    this.value = '';
+                }
+            });
+        }
+    });
+}
+
+// Валидация телефона перед отправкой
+function validatePhone(phone) {
+    // Проверяем, что телефон соответствует формату +7 (XXX) XXX-XX-XX
+    const phoneRegex = /^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/;
+    return phoneRegex.test(phone);
 }
