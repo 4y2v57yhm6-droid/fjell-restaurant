@@ -744,7 +744,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initLogout();
     initBookingForm();
     loadUserFavorites();
-    initPhoneMask();
     
     if (document.getElementById('profileName')) {
         loadProfile();
