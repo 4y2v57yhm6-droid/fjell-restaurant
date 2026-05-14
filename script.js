@@ -398,6 +398,7 @@ function initMenuFilters() {
 
 // ========== ВХОД/РЕГИСТРАЦИЯ ==========
 function initAuthForms() {
+    // ===== ФОРМА ВХОДА =====
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {
@@ -422,6 +423,71 @@ function initAuthForms() {
             }
         });
     }
+    
+    // ===== ФОРМА РЕГИСТРАЦИИ =====
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const phone = document.getElementById('regPhone').value;
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirmPassword').value;
+            
+            // Проверка обязательных полей
+            if (!name || !email || !password) {
+                showMessage('registerMessage', 'Заполните все обязательные поля', false);
+                return;
+            }
+            
+            // Проверка паролей
+            if (password !== confirm) {
+                showMessage('registerMessage', 'Пароли не совпадают', false);
+                return;
+            }
+            
+            // Проверка длины пароля
+            if (password.length < 6) {
+                showMessage('registerMessage', 'Пароль должен быть не менее 6 символов', false);
+                return;
+            }
+            
+            // ✅ ВАЛИДАЦИЯ ТЕЛЕФОНА (если поле заполнено)
+            if (phone && !validatePhone(phone)) {
+                showMessage('registerMessage', 'Введите номер телефона в формате +7 (999) 123-45-67', false);
+                return;
+            }
+            
+            // Проверка уникальности email
+            const users = JSON.parse(localStorage.getItem('fjell_users') || '[]');
+            if (users.some(u => u.email === email)) {
+                showMessage('registerMessage', 'Пользователь с таким email уже существует', false);
+                return;
+            }
+            
+            // Создание нового пользователя
+            const newUser = {
+                id: users.length + 1,
+                name: name,
+                email: email,
+                password: password,
+                phone: phone || '',
+                isAdmin: false
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('fjell_users', JSON.stringify(users));
+            localStorage.setItem('fjell_currentUser', JSON.stringify(newUser));
+            
+            showMessage('registerMessage', 'Регистрация успешна!', true);
+            setTimeout(() => {
+                window.location.href = 'profile.html';
+            }, 1000);
+        });
+    }
+}
     
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
@@ -538,6 +604,12 @@ function initProfileForm() {
         const newName = document.getElementById('profileName').value;
         const newPhone = document.getElementById('profilePhone').value;
         
+        // ВАЛИДАЦИЯ ТЕЛЕФОНА (если поле заполнено)
+        if (newPhone && !validatePhone(newPhone)) {
+            showMessage('profileMessage', 'Введите номер в формате +7 (999) 123-45-67', false);
+            return;
+        }
+        
         const users = JSON.parse(localStorage.getItem('fjell_users') || '[]');
         const userIndex = users.findIndex(u => u.email === currentUser.email);
         
@@ -598,8 +670,19 @@ function initBookingForm() {
         const time = document.getElementById('bookingTime').value;
         const notes = document.getElementById('bookingNotes').value;
         
-        if (!name || !phone || !date || !time) {
-            showMessage('bookingMessage', 'Заполните все обязательные поля', false);
+        if (!name) {
+            showMessage('bookingMessage', 'Введите имя', false);
+            return;
+        }
+        
+        // ВАЛИДАЦИЯ ТЕЛЕФОНА
+        if (!validatePhone(phone)) {
+            showMessage('bookingMessage', 'Введите номер в формате +7 (999) 123-45-67', false);
+            return;
+        }
+        
+        if (!date || !time) {
+            showMessage('bookingMessage', 'Выберите дату и время', false);
             return;
         }
         
@@ -618,7 +701,7 @@ function initBookingForm() {
         
         bookings.push(newBooking);
         localStorage.setItem('fjell_bookings', JSON.stringify(bookings));
-        showMessage('bookingMessage', 'Бронирование отправлено! Мы свяжемся с вами.', true);
+        showMessage('bookingMessage', 'Бронирование отправлено!', true);
         form.reset();
         if (dateInput) dateInput.min = new Date().toISOString().split('T')[0];
     });
@@ -744,6 +827,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initLogout();
     initBookingForm();
     loadUserFavorites();
+    initPhoneMasks();
     
     if (document.getElementById('profileName')) {
         loadProfile();
@@ -1326,4 +1410,66 @@ function updateFavoriteButton(eventId) {
         btn.innerHTML = '⭐ В избранное';
         btn.classList.remove('active');
     }
+}
+// ========== МАСКА ДЛЯ ТЕЛЕФОНА (единый формат) ==========
+
+// Функция маскирования телефона
+function phoneMask(input) {
+    let value = input.value.replace(/\D/g, '');
+    if (value.length > 11) value = value.slice(0, 11);
+    
+    let formattedValue = '';
+    if (value.length > 0) {
+        formattedValue = '+7';
+        if (value.length > 1) {
+            const code = value.slice(1, 4);
+            formattedValue += ` (${code}`;
+            if (value.length > 4) {
+                const firstPart = value.slice(4, 7);
+                formattedValue += `) ${firstPart}`;
+                if (value.length > 7) {
+                    const secondPart = value.slice(7, 9);
+                    formattedValue += `-${secondPart}`;
+                    if (value.length > 9) {
+                        const thirdPart = value.slice(9, 11);
+                        formattedValue += `-${thirdPart}`;
+                    }
+                }
+            } else {
+                formattedValue += `)`;
+            }
+        }
+    }
+    input.value = formattedValue;
+}
+
+// Валидация телефона
+function validatePhone(phone) {
+    const phoneRegex = /^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/;
+    return phoneRegex.test(phone);
+}
+
+// Инициализация маски для всех полей телефона
+function initPhoneMasks() {
+    const phoneInputs = document.querySelectorAll('#bookingPhone, #regPhone, #profilePhone');
+    
+    phoneInputs.forEach(input => {
+        if (input) {
+            input.addEventListener('input', function() {
+                phoneMask(this);
+            });
+            
+            input.addEventListener('focus', function() {
+                if (this.value === '') {
+                    this.value = '+7';
+                }
+            });
+            
+            input.addEventListener('blur', function() {
+                if (this.value === '+7') {
+                    this.value = '';
+                }
+            });
+        }
+    });
 }
