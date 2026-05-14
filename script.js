@@ -82,33 +82,84 @@ function updateNavButtons() {
     }
 }
 
-// ========== БУРГЕР-МЕНЮ ==========
+// ========== БУРГЕР-МЕНЮ (РАБОТАЕТ НА ВСЕХ СТРАНИЦАХ) ==========
 function initBurgerMenu() {
-    const burgerIcon = document.getElementById('burgerIcon');
-    const mobileMenu = document.getElementById('mobileMenu');
-    const closeMenu = document.getElementById('closeMenu');
+    // Находим все бургер-иконки и меню на странице
+    const burgerIcons = document.querySelectorAll('.burger-icon');
+    const mobileMenus = document.querySelectorAll('.mobile-menu');
+    const closeBtns = document.querySelectorAll('.close-menu');
     
-    if (burgerIcon && mobileMenu) {
-        burgerIcon.addEventListener('click', function(e) {
+    // Функция открытия меню
+    function openMenu(menu) {
+        if (menu) {
+            menu.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    // Функция закрытия меню
+    function closeMenu(menu) {
+        if (menu) {
+            menu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+    
+    // Закрыть все меню
+    function closeAllMenus() {
+        mobileMenus.forEach(menu => {
+            menu.classList.remove('active');
+        });
+        document.body.style.overflow = '';
+    }
+    
+    // Обработчики для иконок бургера
+    burgerIcons.forEach((icon, index) => {
+        icon.addEventListener('click', function(e) {
             e.preventDefault();
-            mobileMenu.classList.add('active');
-            document.body.classList.add('menu-open');
-        });
-    }
-    
-    if (closeMenu && mobileMenu) {
-        closeMenu.addEventListener('click', function() {
-            mobileMenu.classList.remove('active');
-            document.body.classList.remove('menu-open');
-        });
-    }
-    
-    document.addEventListener('click', function(e) {
-        if (mobileMenu && mobileMenu.classList.contains('active')) {
-            if (!mobileMenu.contains(e.target) && !burgerIcon.contains(e.target)) {
-                mobileMenu.classList.remove('active');
-                document.body.classList.remove('menu-open');
+            e.stopPropagation();
+            const menu = mobileMenus[index];
+            if (menu) {
+                if (menu.classList.contains('active')) {
+                    closeMenu(menu);
+                } else {
+                    closeAllMenus();
+                    openMenu(menu);
+                }
             }
+        });
+    });
+    
+    // Обработчики для кнопок закрытия
+    closeBtns.forEach((btn, index) => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const menu = mobileMenus[index];
+            closeMenu(menu);
+        });
+    });
+    
+    // Закрытие при клике вне меню
+    document.addEventListener('click', function(e) {
+        mobileMenus.forEach(menu => {
+            if (menu && menu.classList.contains('active')) {
+                let isClickInside = false;
+                burgerIcons.forEach(icon => {
+                    if (icon.contains(e.target)) isClickInside = true;
+                });
+                if (menu.contains(e.target)) isClickInside = true;
+                
+                if (!isClickInside) {
+                    closeMenu(menu);
+                }
+            }
+        });
+    });
+    
+    // Закрытие при нажатии Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeAllMenus();
         }
     });
 }
