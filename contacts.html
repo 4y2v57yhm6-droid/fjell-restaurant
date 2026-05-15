@@ -3,227 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Контакты | Fjell - Бронирование столов</title>
+    <title>Админ-панель | Fjell</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <header class="header">
-        <div class="container header-container">
-            <div class="logo">
-                <span class="logo-text">Fjell</span>
-                <span class="logo-accent caveat">скандинавская кухня</span>
-            </div>
-            <nav class="nav desktop-nav">
-                <a href="index.html" class="nav-link">Главная</a>
-                <a href="about.html" class="nav-link">О нас</a>
-                <a href="menu.html" class="nav-link">Меню</a>
-                <a href="gallery.html" class="nav-link">Галерея</a>
-                <a href="events.html" class="nav-link">Афиша</a>
-                <a href="news.html" class="nav-link">Новости</a>
-                <a href="contacts.html" class="nav-link active">Контакты</a>
-                <a href="login.html" class="nav-link login-btn">Войти</a>
-            </nav>
-            <div class="burger-menu">
-                <div class="burger-icon" id="burgerIcon5">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
+<header class="header">
+    <div class="container header-container">
+        <div class="logo">
+            <span class="logo-text">Fjell Admin</span>
+            <span class="logo-accent">панель управления</span>
         </div>
-    </header>
-
-    <div class="mobile-menu" id="mobileMenu5">
-        <div class="mobile-menu-header">
-            <span class="logo-text">Fjell</span>
-            <div class="close-menu" id="closeMenu5">&times;</div>
-        </div>
-        <nav class="mobile-nav">
-            <a href="index.html" class="mobile-nav-link">Главная</a>
-            <a href="about.html" class="mobile-nav-link">О нас</a>
-            <a href="menu.html" class="mobile-nav-link">Меню</a>
-            <a href="gallery.html" class="mobile-nav-link">Галерея</a>
-            <a href="events.html" class="mobile-nav-link">Афиша</a>
-            <a href="news.html" class="mobile-nav-link">Новости</a>
-            <a href="contacts.html" class="mobile-nav-link">Контакты</a>
-            <a href="login.html" class="mobile-nav-link">Войти</a>
+        <nav class="nav desktop-nav">
+            <a href="index.html" class="nav-link">На сайт</a>
+            <a href="#" id="adminLogout" class="nav-link login-btn">Выйти</a>
         </nav>
-    </div>
-
-    <main class="contacts-page">
-    <section class="page-header contacts-header">
-        <div class="page-header-overlay"></div>
-        <div class="container">
-            <h1 class="page-title">Контакты</h1>
-            <p class="page-subtitle">Свяжитесь с нами или забронируйте стол</p>
-        </div>
-    </section>
-
-    <section class="contact-info">
-        <div class="container">
-            <div class="contact-grid">
-                <div class="contact-details">
-                    <div class="contact-item">
-                        <div class="contact-icon">📍</div>
-                        <div>
-                            <h3>Адрес</h3>
-                            <p>респ. Башкортостан, Государственный заповедник Шульган-Таш</p>
-                        </div>
-                    </div>
-                    <div class="contact-item">
-                        <div class="contact-icon">📞</div>
-                        <div>
-                            <h3>Телефон</h3>
-                            <p>+7 (927) 926-20-10</p>
-                        </div>
-                    </div>
-                    <div class="contact-item">
-                        <div class="contact-icon">✉️</div>
-                        <div>
-                            <h3>Email</h3>
-                            <p>info@fjell.ru</p>
-                        </div>
-                    </div>
-                    <div class="contact-item">
-                        <div class="contact-icon">🕐</div>
-                        <div>
-                            <h3>Режим работы</h3>
-                            <p>Пн-Чт: 12:00 - 23:00<br>Пт-Вс: 12:00 - 01:00</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="contact-map">
-        <div id="yandexMap" style="width: 100%; height: 450px; border-radius: 16px;"></div>
-    </div>
+        <div class="burger-menu">
+            <div class="burger-icon" id="burgerIcon">
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
         </div>
-    </section>
+    </div>
+</header>
 
-    <section class="booking-section">
-        <div class="container">
-            <h2 class="section-title">Забронировать стол</h2>
-            <form class="booking-form" id="bookingForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="bookingName">Имя *</label>
-                        <input type="text" id="bookingName" class="form-input" placeholder="Введите ваше имя" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="bookingPhone">Телефон *</label>
-                        <input type="tel" id="bookingPhone" class="form-input" placeholder="+7 (___) ___-__-__" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="bookingEmail">Email</label>
-                        <input type="email" id="bookingEmail" class="form-input" placeholder="example@mail.ru">
-                    </div>
-                    <div class="form-group">
-                        <label for="bookingGuests">Количество гостей *</label>
-                        <input type="number" id="bookingGuests" class="form-input" min="1" max="10" value="2" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="bookingDate">Дата *</label>
-                        <input type="date" id="bookingDate" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="bookingTime">Время *</label>
-                        <select id="bookingTime" class="form-input" required>
-                            <option value="">Выберите время</option>
-                            <option value="12:00">12:00</option>
-                            <option value="13:00">13:00</option>
-                            <option value="14:00">14:00</option>
-                            <option value="15:00">15:00</option>
-                            <option value="16:00">16:00</option>
-                            <option value="17:00">17:00</option>
-                            <option value="18:00">18:00</option>
-                            <option value="19:00">19:00</option>
-                            <option value="20:00">20:00</option>
-                            <option value="21:00">21:00</option>
-                            <option value="22:00">22:00</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="bookingNotes">Особые пожелания</label>
-                    <textarea id="bookingNotes" class="form-input" rows="3" placeholder="Укажите особые пожелания (аллергии, праздник и т.д.)"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary btn-submit">Забронировать</button>
-                <div id="bookingMessage" class="form-message"></div>
-            </form>
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+        <span class="logo-text">Fjell Admin</span>
+        <div class="close-menu" id="closeMenu">&times;</div>
+    </div>
+    <nav class="mobile-nav">
+        <a href="index.html" class="mobile-nav-link">На сайт</a>
+        <a href="#" class="mobile-nav-link" id="mobileAdminLogout">Выйти</a>
+    </nav>
+</div>
+
+<main class="admin-page">
+    <div class="container">
+        <div class="admin-welcome">
+            <h1>Панель управления</h1>
+            <p id="adminWelcomeMsg">Добро пожаловать в административную панель</p>
         </div>
-    </section>
+
+        <!-- Статистика -->
+        <div class="admin-stats">
+            <div class="stat-card">
+                <div class="stat-icon">🍽️</div>
+                <div class="stat-info">
+                    <h3 id="statMenu">0</h3>
+                    <p>Блюд</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎵</div>
+                <div class="stat-info">
+                    <h3 id="statEvents">0</h3>
+                    <p>Событий</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📰</div>
+                <div class="stat-info">
+                    <h3 id="statNews">0</h3>
+                    <p>Новостей</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-info">
+                    <h3 id="statUsers">0</h3>
+                    <p>Пользователей</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-info">
+                    <h3 id="statBookings">0</h3>
+                    <p>Бронирований</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладки -->
+        <div class="admin-tabs">
+            <button class="admin-tab active" data-tab="menu">📋 Меню</button>
+            <button class="admin-tab" data-tab="events">🎵 События</button>
+            <button class="admin-tab" data-tab="news">📰 Новости</button>
+            <button class="admin-tab" data-tab="users">👥 Пользователи</button>
+            <button class="admin-tab" data-tab="bookings">📅 Бронирования</button>
+        </div>
+
+        <!-- Меню -->
+        <div id="tabMenu" class="admin-tab-content active">
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h3>Управление меню</h3>
+                    <button class="btn-add" onclick="openModal('menu')">+ Добавить блюдо</button>
+                </div>
+                <div id="menuList" class="admin-items-list"></div>
+            </div>
+        </div>
+
+        <!-- События -->
+        <div id="tabEvents" class="admin-tab-content">
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h3>Управление событиями</h3>
+                    <button class="btn-add" onclick="openModal('event')">+ Добавить событие</button>
+                </div>
+                <div id="eventsList" class="admin-items-list"></div>
+            </div>
+        </div>
+
+        <!-- Новости -->
+        <div id="tabNews" class="admin-tab-content">
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h3>Управление новостями</h3>
+                    <button class="btn-add" onclick="openModal('news')">+ Добавить новость</button>
+                </div>
+                <div id="newsList" class="admin-items-list"></div>
+            </div>
+        </div>
+
+        <!-- Пользователи -->
+        <div id="tabUsers" class="admin-tab-content">
+            <div class="admin-card">
+                <h3>Список пользователей</h3>
+                <div id="usersList" class="admin-items-list"></div>
+            </div>
+        </div>
+
+        <!-- Бронирования -->
+        <div id="tabBookings" class="admin-tab-content">
+            <div class="admin-card">
+                <h3>Все бронирования</h3>
+                <div id="bookingsList" class="admin-items-list"></div>
+            </div>
+        </div>
+    </div>
 </main>
 
-    <footer class="footer">
-        <div class="container footer-container">
-            <div class="footer-col">
-                <h3 class="footer-title">Fjell</h3>
-                <p class="footer-text">Ресторан скандинавской кухни<br>в самом сердце города</p>
-            </div>
-            <div class="footer-col">
-                <h4 class="footer-subtitle">Часы работы</h4>
-                <p class="footer-text">Пн-Чт: 12:00 - 23:00<br>Пт-Вс: 12:00 - 01:00</p>
-            </div>
-            <div class="footer-col">
-                <h4 class="footer-subtitle">Контакты</h4>
-                <p class="footer-text">+7 (927) 926-20-10<br>info@fjell.ru</p>
-            </div>
-            <div class="footer-col">
-                <h4 class="footer-subtitle">Адрес</h4>
-                <p class="footer-text">респ. Башкортостан, Государственный заповедник Шульган-Таш</p>
-            </div>
+<!-- Модальное окно -->
+<div id="adminModal" class="admin-modal">
+    <div class="admin-modal-content">
+        <div class="admin-modal-header">
+            <h2 id="modalTitle">Добавить</h2>
+            <span class="admin-modal-close" onclick="closeModal()">&times;</span>
         </div>
-        <div class="footer-bottom">
-            <p>© 2026 Fjell. Все права защищены.</p>
+        <div class="admin-modal-body">
+            <form id="adminForm">
+                <input type="hidden" id="modalType">
+                <input type="hidden" id="editId">
+                <div id="modalFields"></div>
+                <button type="submit" class="btn btn-primary btn-full">Сохранить</button>
+            </form>
         </div>
-    </footer>
+    </div>
+</div>
 
-    <script src="script.js"></script>
-    <!-- Скрипт Яндекс.Карт -->
-<script src="https://api-maps.yandex.ru/2.1/?apikey=f3296ade-fc81-4af0-b5f2-26b1066ce36d&lang=ru_RU" type="text/javascript"></script>
-<script>
-    function initMap() {
-        // Координаты заповедника Шульган-Таш
-        const shulganTash = [53.0458, 57.0708];
-        
-        // Создаём карту
-        const map = new ymaps.Map('yandexMap', {
-            center: shulganTash,
-            zoom: 13,
-            controls: ['zoomControl', 'fullscreenControl']
-        });
-        
-        // Добавляем метку
-        const placemark = new ymaps.Placemark(shulganTash, {
-            hintContent: 'Шульган-Таш',
-            balloonContent: `
-                <div style="font-family: Arial, sans-serif;">
-                    <strong>🏔️ Государственный заповедник Шульган-Таш</strong><br>
-                    <strong>Республика Башкортостан</strong><br><br>
-                    📍 Известен пещерой Каповой (Шульган-Таш)<br>
-                    🎨 Древние наскальные рисунки эпохи палеолита<br>
-                    🐝 Бортничество — древнее пчеловодство<br><br>
-                    <a href="https://yandex.ru/maps/?pt=57.0708,53.0458&z=15" target="_blank" style="color: #D97C4A;">Открыть в Яндекс.Картах →</a>
-                </div>
-            `
-        }, {
-            preset: 'islands#redIcon',
-            iconColor: '#D97C4A'
-        });
-        
-        map.geoObjects.add(placemark);
-        
-        // Открываем балун при загрузке
-        placemark.balloon.open();
-    }
-    
-    // Ждём загрузки API
-    ymaps.ready(initMap);
-</script>
+<footer class="footer">
+    <div class="container">
+        <div class="footer-bottom">
+            <p>© 2026 Fjell. Административная панель</p>
+        </div>
+    </div>
+</footer>
+
+<script src="script.js"></script>
 </body>
 </html>
