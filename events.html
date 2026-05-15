@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Афиша | Fjell - Календарь событий</title>
+    <title>Меню | Fjell - Ресторан скандинавской кухни</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -18,9 +18,9 @@
         <nav class="nav desktop-nav">
             <a href="index.html" class="nav-link">Главная</a>
             <a href="about.html" class="nav-link">О нас</a>
-            <a href="menu.html" class="nav-link">Меню</a>
+            <a href="menu.html" class="nav-link active">Меню</a>
             <a href="gallery.html" class="nav-link">Галерея</a>
-            <a href="events.html" class="nav-link active">Афиша</a>
+            <a href="events.html" class="nav-link">Афиша</a>
             <a href="news.html" class="nav-link">Новости</a>
             <a href="contacts.html" class="nav-link">Контакты</a>
             <a href="login.html" class="nav-link login-btn" id="loginNavBtn">Войти</a>
@@ -54,69 +54,140 @@
     </nav>
 </div>
 
-<main class="events-page">
-    <section class="page-header events-header">
-        <div class="page-header-overlay"></div>
+<main class="page-with-bg">
+    <section class="page-header">
         <div class="container">
-            <h1 class="page-title">Календарь событий</h1>
-            <p class="page-subtitle">Музыкальные вечера, дегустации и тематические программы</p>
+            <h1 class="page-title">Наше меню</h1>
+            <p class="page-subtitle">Современная интерпретация северных традиций</p>
         </div>
     </section>
 
-    <section class="view-switch">
+    <section class="menu-section">
         <div class="container">
-            <div class="view-buttons">
-                <button class="view-btn active" data-view="calendar">📅 Календарь</button>
-                <button class="view-btn" data-view="list">📋 Списком</button>
+            <!-- Фильтр категорий -->
+            <div class="menu-filters">
+                <button class="filter-btn active" data-category="all">Все</button>
+                <button class="filter-btn" data-category="starters">Закуски</button>
+                <button class="filter-btn" data-category="main">Горячее</button>
+                <button class="filter-btn" data-category="desserts">Десерты</button>
+                <button class="filter-btn" data-category="drinks">Напитки</button>
             </div>
-        </div>
-    </section>
 
-    <section class="calendar-view" id="calendarView">
-        <div class="container">
-            <div class="calendar-container">
-                <div class="calendar-header">
-                    <button class="calendar-nav" id="prevMonth">←</button>
-                    <h3 class="calendar-month" id="currentMonth">Май 2026</h3>
-                    <button class="calendar-nav" id="nextMonth">→</button>
+            <!-- Сетка меню -->
+            <div class="menu-grid" id="menuGrid">
+                
+                <!-- ===== ЗАКУСКИ ===== -->
+                <div class="menu-item" data-category="starters">
+                    <div class="menu-item-image">
+                        <img src="assets/images/gravlax.jpg" alt="Гравлакс">
+                    </div>
+                    <div class="menu-item-info">
+                        <div class="menu-item-header">
+                            <h3 class="menu-item-title">Гравлакс</h3>
+                            <span class="menu-item-price">890 ₽</span>
+                        </div>
+                        <p class="menu-item-description">Лосось, замаринованный в укропе с добавлением хрустящих корниплантов, подаётся с горчичным соусом. Классическое скандинавское блюдо.</p>
+                    </div>
                 </div>
-                <div class="calendar-weekdays">
-                    <div class="weekday">Пн</div>
-                    <div class="weekday">Вт</div>
-                    <div class="weekday">Ср</div>
-                    <div class="weekday">Чт</div>
-                    <div class="weekday">Пт</div>
-                    <div class="weekday">Сб</div>
-                    <div class="weekday">Вс</div>
+
+                <div class="menu-item" data-category="starters">
+                    <div class="menu-item-image">
+                        <img src="assets/images/smorbrod.jpg" alt="Смёрброд">
+                    </div>
+                    <div class="menu-item-info">
+                        <div class="menu-item-header">
+                            <h3 class="menu-item-title">Смёрброд с креветками</h3>
+                            <span class="menu-item-price">750 ₽</span>
+                        </div>
+                        <p class="menu-item-description">Открытый бутерброд на ржаном хлебе с северными креветками, яйцом, зеленью и соусом из укропа. Датская классика.</p>
+                    </div>
                 </div>
-                <div class="calendar-days" id="calendarDays"></div>
+
+                <!-- ===== ГОРЯЧЕЕ ===== -->
+                <div class="menu-item" data-category="main">
+                    <div class="menu-item-image">
+                        <img src="assets/images/venison.jpg" alt="Оленина">
+                    </div>
+                    <div class="menu-item-info">
+                        <div class="menu-item-header">
+                            <h3 class="menu-item-title">Оленина с брусничным соусом</h3>
+                            <span class="menu-item-price">1850 ₽</span>
+                        </div>
+                        <p class="menu-item-description">Нежное филе оленины, обжаренное до золотистой корочки, подаётся с соусом из лесной брусники и запечённым картофелем с тимьяном.</p>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-category="main">
+                    <div class="menu-item-image">
+                        <img src="assets/images/salmon.jpg" alt="Лосось">
+                    </div>
+                    <div class="menu-item-info">
+                        <div class="menu-item-header">
+                            <h3 class="menu-item-title">Лосось с соусом из укропа</h3>
+                            <span class="menu-item-price">1450 ₽</span>
+                        </div>
+                        <p class="menu-item-description">Свежайший норвежский лосось на гриле с нежным сливочным соусом из укропа, запечёнными овощами и молодым картофелем.</p>
+                    </div>
+                </div>
+
+                <!-- ===== ДЕСЕРТЫ ===== -->
+                <div class="menu-item" data-category="desserts">
+                    <div class="menu-item-image">
+                        <img src="assets/images/kladdkaka.jpg" alt="Кладдкака">
+                    </div>
+                    <div class="menu-item-info">
+                        <div class="menu-item-header">
+                            <h3 class="menu-item-title">Кладдкака</h3>
+                            <span class="menu-item-price">520 ₽</span>
+                        </div>
+                        <p class="menu-item-description">Шведский липкий шоколадный торт с хрустящей корочкой и тягучей начинкой. Подаётся с шариком ванильного мороженого и ягодным соусом.</p>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-category="desserts">
+                    <div class="menu-item-image">
+                        <img src="assets/images/cloudberry.jpg" alt="Морошка">
+                    </div>
+                    <div class="menu-item-info">
+                        <div class="menu-item-header">
+                            <h3 class="menu-item-title">Десерт с морошкой</h3>
+                            <span class="menu-item-price">480 ₽</span>
+                        </div>
+                        <p class="menu-item-description">Лёгкий воздушный мусс из арктической морошки с вафельной крошкой и свежими ягодами. Тарт вкус с кислинкой.</p>
+                    </div>
+                </div>
+
+                <!-- ===== НАПИТКИ ===== -->
+                <div class="menu-item" data-category="drinks">
+                    <div class="menu-item-image">
+                        <img src="assets/images/aquavit.jpg" alt="Аквавит">
+                    </div>
+                    <div class="menu-item-info">
+                        <div class="menu-item-header">
+                            <h3 class="menu-item-title">Аквавит</h3>
+                            <span class="menu-item-price">450 ₽</span>
+                        </div>
+                        <p class="menu-item-description">Традиционный скандинавский крепкий напиток, настоянный на тмине, укропе и других северных травах. Подаётся охлаждённым.</p>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-category="drinks">
+                    <div class="menu-item-image">
+                        <img src="assets/images/lingonberry-drink.jpg" alt="Брусничный морс">
+                    </div>
+                    <div class="menu-item-info">
+                        <div class="menu-item-header">
+                            <h3 class="menu-item-title">Брусничный морс</h3>
+                            <span class="menu-item-price">320 ₽</span>
+                        </div>
+                        <p class="menu-item-description">Освежающий напиток из лесной брусники с добавлением мёда и мяты. Подаётся со льдом и долькой лимона.</p>
+                    </div>
+                </div>
+
             </div>
-        </div>
-    </section>
-
-    <section class="list-view" id="listView" style="display: none;">
-        <div class="container">
-            <div class="events-list" id="eventsList"></div>
         </div>
     </section>
 </main>
-
-<!-- Модальное окно с деталями события -->
-<div id="eventModal" class="event-modal">
-    <div class="event-modal-content">
-        <div class="event-modal-header">
-            <h2 id="modalTitle">Название события</h2>
-            <span class="event-modal-close">&times;</span>
-        </div>
-        <div class="event-modal-body">
-            <div class="event-modal-date" id="modalDate"></div>
-            <img id="modalImage" class="event-modal-image" src="" alt="">
-            <div class="event-modal-description" id="modalDescription"></div>
-            <button class="btn-favorite" id="markFavoriteBtn">⭐ В избранное</button>
-            <div id="favoriteMessage" class="favorite-message"></div>
-        </div>
-    </div>
-</div>
 
 <footer class="footer">
     <div class="container footer-container">
