@@ -82,33 +82,84 @@ function updateNavButtons() {
     }
 }
 
-// ========== БУРГЕР-МЕНЮ ==========
+// ========== БУРГЕР-МЕНЮ (РАБОТАЕТ НА ВСЕХ СТРАНИЦАХ) ==========
 function initBurgerMenu() {
-    const burgerIcon = document.getElementById('burgerIcon');
-    const mobileMenu = document.getElementById('mobileMenu');
-    const closeMenu = document.getElementById('closeMenu');
+    // Находим все бургер-иконки и меню на странице
+    const burgerIcons = document.querySelectorAll('.burger-icon');
+    const mobileMenus = document.querySelectorAll('.mobile-menu');
+    const closeBtns = document.querySelectorAll('.close-menu');
     
-    if (burgerIcon && mobileMenu) {
-        burgerIcon.addEventListener('click', function(e) {
+    // Функция открытия меню
+    function openMenu(menu) {
+        if (menu) {
+            menu.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    // Функция закрытия меню
+    function closeMenu(menu) {
+        if (menu) {
+            menu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+    
+    // Закрыть все меню
+    function closeAllMenus() {
+        mobileMenus.forEach(menu => {
+            menu.classList.remove('active');
+        });
+        document.body.style.overflow = '';
+    }
+    
+    // Обработчики для иконок бургера
+    burgerIcons.forEach((icon, index) => {
+        icon.addEventListener('click', function(e) {
             e.preventDefault();
-            mobileMenu.classList.add('active');
-            document.body.classList.add('menu-open');
-        });
-    }
-    
-    if (closeMenu && mobileMenu) {
-        closeMenu.addEventListener('click', function() {
-            mobileMenu.classList.remove('active');
-            document.body.classList.remove('menu-open');
-        });
-    }
-    
-    document.addEventListener('click', function(e) {
-        if (mobileMenu && mobileMenu.classList.contains('active')) {
-            if (!mobileMenu.contains(e.target) && !burgerIcon.contains(e.target)) {
-                mobileMenu.classList.remove('active');
-                document.body.classList.remove('menu-open');
+            e.stopPropagation();
+            const menu = mobileMenus[index];
+            if (menu) {
+                if (menu.classList.contains('active')) {
+                    closeMenu(menu);
+                } else {
+                    closeAllMenus();
+                    openMenu(menu);
+                }
             }
+        });
+    });
+    
+    // Обработчики для кнопок закрытия
+    closeBtns.forEach((btn, index) => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const menu = mobileMenus[index];
+            closeMenu(menu);
+        });
+    });
+    
+    // Закрытие при клике вне меню
+    document.addEventListener('click', function(e) {
+        mobileMenus.forEach(menu => {
+            if (menu && menu.classList.contains('active')) {
+                let isClickInside = false;
+                burgerIcons.forEach(icon => {
+                    if (icon.contains(e.target)) isClickInside = true;
+                });
+                if (menu.contains(e.target)) isClickInside = true;
+                
+                if (!isClickInside) {
+                    closeMenu(menu);
+                }
+            }
+        });
+    });
+    
+    // Закрытие при нажатии Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeAllMenus();
         }
     });
 }
@@ -546,8 +597,9 @@ function initBookingForm() {
         const time = document.getElementById('bookingTime').value;
         const notes = document.getElementById('bookingNotes').value;
         
-        if (!name || !phone || !date || !time) {
-            showMessage('bookingMessage', 'Заполните все обязательные поля', false);
+        const phoneDigits = phone.replace(/\D/g, '');
+        if (phoneDigits.length !== 11) {
+            showMessage('bookingMessage', 'Введите номер телефона из 11 цифр (например: +7 999 123 45 67)', false);
             return;
         }
         
@@ -691,6 +743,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initLogout();
     initBookingForm();
     loadUserFavorites();
+    applyPhoneMasks();
     
     if (document.getElementById('profileName')) {
         loadProfile();
@@ -986,29 +1039,365 @@ if (document.querySelector('.news-section')) {
 }
 // ========== АДМИН-ПАНЕЛЬ ==========
 
-function initAdminPanel() {
-    const currentUser = JSON.parse(localStorage.getItem('fjell_currentUser'));
-    if (!currentUser || !currentUser.isAdmin) {
-        alert('Доступ запрещён! Требуются права администратора.');
-        window.location.href = 'index.html';
-        return;
-    }
-    
-    // Приветствие
-    const welcomeMsg = document.querySelector('.admin-welcome p');
-    if (welcomeMsg) {
-        welcomeMsg.innerHTML = `Добро пожаловать, ${currentUser.name}! 👋`;
-    }
-    
+// Данные меню (начальные)
+let adminMenuData = [
+    { id: 1, name: "Гравлакс", category: "Закуски", price: 890, description: "Лосось в укропе с горчичным соусом" },
+    { id: 2, name: "Смёрброд с креветками", category: "Закуски", price: 750, description: "Открытый бутерброд с северными креветками" },
+    { id: 3, name: "Оленина с брусничным соусом", category: "Горячее", price: 1850, description: "Нежное филе оленины с ягодным соусом" },
+    { id: 4, name: "Лосось с соусом из укропа", category: "Горячее", price: 1450, description: "Свежий лосось на гриле" },
+    { id: 5, name: "Кладдкака", category: "Десерты", price: 520, description: "Шоколадный торт с мороженым" },
+    { id: 6, name: "Аквавит", category: "Напитки", price: 450, description: "Традиционный скандинавский напиток" }
+];
+
+// Загрузка всех данных
+function loadAdminData() {
     loadAdminMenu();
     loadAdminEvents();
     loadAdminNews();
     loadAdminUsers();
     loadAdminBookings();
     updateAdminStats();
-    initAdminTabs();
 }
 
+// ===== МЕНЮ =====
+function loadAdminMenu() {
+    const container = document.getElementById('menuList');
+    if (!container) return;
+    
+    container.innerHTML = adminMenuData.map(item => `
+        <div class="admin-item">
+            <div class="admin-item-info">
+                <div class="admin-item-title">${escapeHtml(item.name)}</div>
+                <div class="admin-item-meta">${item.category} • ${item.price} ₽</div>
+                <div class="admin-item-desc">${escapeHtml(item.description)}</div>
+            </div>
+            <div class="admin-item-actions">
+                <button class="admin-edit" onclick="editItem('menu', ${item.id})">✏️</button>
+                <button class="admin-delete" onclick="deleteItem('menu', ${item.id})">🗑️</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ===== СОБЫТИЯ =====
+function loadAdminEvents() {
+    const container = document.getElementById('eventsList');
+    if (!container) return;
+    
+    let events = localStorage.getItem('fjell_events');
+    let eventsArray = [];
+    if (events) {
+        eventsArray = JSON.parse(events);
+    } else {
+        eventsArray = [
+            { id: 1, title: "Вечер скандинавской музыки", date: "2026-05-20", time: "19:00", description: "Концерт народной музыки" },
+            { id: 2, title: "Сага о викингах", date: "2026-05-25", time: "20:00", description: "Вечер сказаний" },
+            { id: 3, title: "Дегустация северных настоек", date: "2026-05-28", time: "18:00", description: "Дегустация 5 видов" }
+        ];
+        localStorage.setItem('fjell_events', JSON.stringify(eventsArray));
+    }
+    
+    container.innerHTML = eventsArray.map(item => `
+        <div class="admin-item">
+            <div class="admin-item-info">
+                <div class="admin-item-title">${escapeHtml(item.title)}</div>
+                <div class="admin-item-meta">${item.date} в ${item.time}</div>
+                <div class="admin-item-desc">${escapeHtml(item.description)}</div>
+            </div>
+            <div class="admin-item-actions">
+                <button class="admin-edit" onclick="editItem('event', ${item.id})">✏️</button>
+                <button class="admin-delete" onclick="deleteItem('event', ${item.id})">🗑️</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ===== НОВОСТИ =====
+function loadAdminNews() {
+    const container = document.getElementById('newsList');
+    if (!container) return;
+    
+    let news = localStorage.getItem('fjell_news');
+    let newsArray = [];
+    if (news) {
+        newsArray = JSON.parse(news);
+    } else {
+        newsArray = [
+            { id: 1, title: "Новый шеф-повар из Норвегии", date: "2026-03-15", excerpt: "Ларс Хансен присоединился к нашей команде!" },
+            { id: 2, title: "Сезонное меню: весна 2026", date: "2026-03-01", excerpt: "Весеннее обновление меню!" },
+            { id: 3, title: "Бронирование столов онлайн", date: "2026-02-20", excerpt: "Теперь бронировать стало проще!" }
+        ];
+        localStorage.setItem('fjell_news', JSON.stringify(newsArray));
+    }
+    
+    container.innerHTML = newsArray.map(item => `
+        <div class="admin-item">
+            <div class="admin-item-info">
+                <div class="admin-item-title">${escapeHtml(item.title)}</div>
+                <div class="admin-item-meta">${item.date}</div>
+                <div class="admin-item-desc">${escapeHtml(item.excerpt)}</div>
+            </div>
+            <div class="admin-item-actions">
+                <button class="admin-edit" onclick="editItem('news', ${item.id})">✏️</button>
+                <button class="admin-delete" onclick="deleteItem('news', ${item.id})">🗑️</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ===== ПОЛЬЗОВАТЕЛИ =====
+function loadAdminUsers() {
+    const container = document.getElementById('usersList');
+    if (!container) return;
+    
+    let users = localStorage.getItem('fjell_users');
+    let usersArray = [];
+    if (users) {
+        usersArray = JSON.parse(users);
+    }
+    const regularUsers = usersArray.filter(u => !u.isAdmin);
+    
+    container.innerHTML = regularUsers.map(user => `
+        <div class="admin-item">
+            <div class="admin-item-info">
+                <div class="admin-item-title">${escapeHtml(user.name)}</div>
+                <div class="admin-item-meta">${user.email}</div>
+            </div>
+            <div class="admin-item-actions">
+                <button class="admin-delete" onclick="deleteUser(${user.id})">🔒 Заблокировать</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function deleteUser(id) {
+    if (confirm('Заблокировать пользователя?')) {
+        let users = JSON.parse(localStorage.getItem('fjell_users') || '[]');
+        users = users.filter(u => u.id !== id);
+        localStorage.setItem('fjell_users', JSON.stringify(users));
+        loadAdminUsers();
+        updateAdminStats();
+    }
+}
+
+// ===== БРОНИРОВАНИЯ =====
+function loadAdminBookings() {
+    const container = document.getElementById('bookingsList');
+    if (!container) return;
+    
+    let bookings = localStorage.getItem('fjell_bookings');
+    let bookingsArray = [];
+    if (bookings) {
+        bookingsArray = JSON.parse(bookings);
+    }
+    
+    if (bookingsArray.length === 0) {
+        container.innerHTML = '<div class="empty-message">📅 Бронирований пока нет</div>';
+        return;
+    }
+    
+    container.innerHTML = bookingsArray.map(booking => `
+        <div class="admin-item">
+            <div class="admin-item-info">
+                <div class="admin-item-title">${escapeHtml(booking.name)} • ${booking.guests} чел.</div>
+                <div class="admin-item-meta">${booking.date} в ${booking.time} • ${booking.phone}</div>
+                <div class="admin-item-desc">${booking.notes || 'без пожеланий'}</div>
+            </div>
+            <div class="admin-item-actions">
+                <select class="booking-status" data-id="${booking.id}" data-status="${booking.status}">
+                    <option value="pending" ${booking.status === 'pending' ? 'selected' : ''}>⏳ Ожидает</option>
+                    <option value="confirmed" ${booking.status === 'confirmed' ? 'selected' : ''}>✅ Подтверждено</option>
+                    <option value="completed" ${booking.status === 'completed' ? 'selected' : ''}>✔️ Выполнено</option>
+                    <option value="cancelled" ${booking.status === 'cancelled' ? 'selected' : ''}>❌ Отменено</option>
+                </select>
+                <button class="admin-delete" onclick="deleteBooking(${booking.id})">🗑️</button>
+            </div>
+        </div>
+    `).join('');
+    
+    document.querySelectorAll('.booking-status').forEach(select => {
+        select.addEventListener('change', function() {
+            const id = parseInt(this.dataset.id);
+            let bookings = JSON.parse(localStorage.getItem('fjell_bookings') || '[]');
+            bookings = bookings.map(b => b.id === id ? { ...b, status: this.value } : b);
+            localStorage.setItem('fjell_bookings', JSON.stringify(bookings));
+            loadAdminBookings();
+            updateAdminStats();
+        });
+    });
+}
+
+function deleteBooking(id) {
+    if (confirm('Удалить бронирование?')) {
+        let bookings = JSON.parse(localStorage.getItem('fjell_bookings') || '[]');
+        bookings = bookings.filter(b => b.id !== id);
+        localStorage.setItem('fjell_bookings', JSON.stringify(bookings));
+        loadAdminBookings();
+        updateAdminStats();
+    }
+}
+
+// ===== РЕДАКТИРОВАНИЕ И УДАЛЕНИЕ =====
+function editItem(type, id) {
+    if (type === 'menu') {
+        const item = adminMenuData.find(i => i.id === id);
+        if (item) openModal(type, item);
+    } else if (type === 'event') {
+        let events = JSON.parse(localStorage.getItem('fjell_events') || '[]');
+        const item = events.find(e => e.id === id);
+        if (item) openModal(type, item);
+    } else if (type === 'news') {
+        let news = JSON.parse(localStorage.getItem('fjell_news') || '[]');
+        const item = news.find(n => n.id === id);
+        if (item) openModal(type, item);
+    }
+}
+
+function deleteItem(type, id) {
+    if (confirm('Удалить?')) {
+        if (type === 'menu') {
+            adminMenuData = adminMenuData.filter(i => i.id !== id);
+            loadAdminMenu();
+        } else if (type === 'event') {
+            let events = JSON.parse(localStorage.getItem('fjell_events') || '[]');
+            events = events.filter(e => e.id !== id);
+            localStorage.setItem('fjell_events', JSON.stringify(events));
+            loadAdminEvents();
+        } else if (type === 'news') {
+            let news = JSON.parse(localStorage.getItem('fjell_news') || '[]');
+            news = news.filter(n => n.id !== id);
+            localStorage.setItem('fjell_news', JSON.stringify(news));
+            loadAdminNews();
+        }
+        updateAdminStats();
+    }
+}
+
+// ===== МОДАЛЬНОЕ ОКНО =====
+function openModal(type, data = null) {
+    const modal = document.getElementById('adminModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalFields = document.getElementById('modalFields');
+    const modalType = document.getElementById('modalType');
+    const editId = document.getElementById('editId');
+    
+    modalType.value = type;
+    editId.value = data?.id || '';
+    
+    if (type === 'menu') {
+        modalTitle.textContent = data ? 'Редактировать блюдо' : 'Добавить блюдо';
+        modalFields.innerHTML = `
+            <div class="form-group"><label>Название</label><input type="text" id="itemName" class="form-input" value="${data?.name || ''}" required></div>
+            <div class="form-group"><label>Категория</label>
+                <select id="itemCategory" class="form-input">
+                    <option value="Закуски" ${data?.category === 'Закуски' ? 'selected' : ''}>Закуски</option>
+                    <option value="Горячее" ${data?.category === 'Горячее' ? 'selected' : ''}>Горячее</option>
+                    <option value="Десерты" ${data?.category === 'Десерты' ? 'selected' : ''}>Десерты</option>
+                    <option value="Напитки" ${data?.category === 'Напитки' ? 'selected' : ''}>Напитки</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Цена (₽)</label><input type="number" id="itemPrice" class="form-input" value="${data?.price || ''}" required></div>
+            <div class="form-group"><label>Описание</label><textarea id="itemDesc" class="form-input" rows="3">${data?.description || ''}</textarea></div>
+        `;
+    } else if (type === 'event') {
+        modalTitle.textContent = data ? 'Редактировать событие' : 'Добавить событие';
+        modalFields.innerHTML = `
+            <div class="form-group"><label>Название</label><input type="text" id="itemTitle" class="form-input" value="${data?.title || ''}" required></div>
+            <div class="form-group"><label>Дата</label><input type="date" id="itemDate" class="form-input" value="${data?.date || ''}" required></div>
+            <div class="form-group"><label>Время</label><input type="time" id="itemTime" class="form-input" value="${data?.time || '19:00'}" required></div>
+            <div class="form-group"><label>Описание</label><textarea id="itemDesc" class="form-input" rows="3">${data?.description || ''}</textarea></div>
+        `;
+    } else if (type === 'news') {
+        modalTitle.textContent = data ? 'Редактировать новость' : 'Добавить новость';
+        modalFields.innerHTML = `
+            <div class="form-group"><label>Заголовок</label><input type="text" id="itemTitle" class="form-input" value="${data?.title || ''}" required></div>
+            <div class="form-group"><label>Краткое описание</label><textarea id="itemExcerpt" class="form-input" rows="3">${data?.excerpt || ''}</textarea></div>
+        `;
+    }
+    modal.classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('adminModal').classList.remove('active');
+}
+
+// Сохранение из модального окна
+document.getElementById('adminForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const type = document.getElementById('modalType').value;
+    const id = parseInt(document.getElementById('editId').value);
+    
+    if (type === 'menu') {
+        const newItem = {
+            id: id || Date.now(),
+            name: document.getElementById('itemName').value,
+            category: document.getElementById('itemCategory').value,
+            price: parseInt(document.getElementById('itemPrice').value),
+            description: document.getElementById('itemDesc').value
+        };
+        if (id) {
+            const index = adminMenuData.findIndex(i => i.id === id);
+            if (index !== -1) adminMenuData[index] = newItem;
+        } else {
+            adminMenuData.push(newItem);
+        }
+        loadAdminMenu();
+    } else if (type === 'event') {
+        let events = JSON.parse(localStorage.getItem('fjell_events') || '[]');
+        const newEvent = {
+            id: id || Date.now(),
+            title: document.getElementById('itemTitle').value,
+            date: document.getElementById('itemDate').value,
+            time: document.getElementById('itemTime').value,
+            description: document.getElementById('itemDesc').value,
+            image: "assets/images/event-default.jpg"
+        };
+        if (id) {
+            const index = events.findIndex(e => e.id === id);
+            if (index !== -1) events[index] = newEvent;
+        } else {
+            events.push(newEvent);
+        }
+        localStorage.setItem('fjell_events', JSON.stringify(events));
+        loadAdminEvents();
+    } else if (type === 'news') {
+        let news = JSON.parse(localStorage.getItem('fjell_news') || '[]');
+        const newNews = {
+            id: id || Date.now(),
+            title: document.getElementById('itemTitle').value,
+            date: new Date().toISOString().split('T')[0],
+            excerpt: document.getElementById('itemExcerpt').value,
+            image: "assets/images/news-default.jpg",
+            onMain: true
+        };
+        if (id) {
+            const index = news.findIndex(n => n.id === id);
+            if (index !== -1) news[index] = newNews;
+        } else {
+            news.push(newNews);
+        }
+        localStorage.setItem('fjell_news', JSON.stringify(news));
+        loadAdminNews();
+    }
+    updateAdminStats();
+    closeModal();
+});
+
+// ===== СТАТИСТИКА =====
+function updateAdminStats() {
+    const events = JSON.parse(localStorage.getItem('fjell_events') || '[]');
+    const news = JSON.parse(localStorage.getItem('fjell_news') || '[]');
+    const users = JSON.parse(localStorage.getItem('fjell_users') || '[]');
+    const bookings = JSON.parse(localStorage.getItem('fjell_bookings') || '[]');
+    
+    document.getElementById('statMenu') && (document.getElementById('statMenu').textContent = adminMenuData.length);
+    document.getElementById('statEvents') && (document.getElementById('statEvents').textContent = events.length);
+    document.getElementById('statNews') && (document.getElementById('statNews').textContent = news.length);
+    document.getElementById('statUsers') && (document.getElementById('statUsers').textContent = users.filter(u => !u.isAdmin).length);
+    document.getElementById('statBookings') && (document.getElementById('statBookings').textContent = bookings.length);
+}
+
+// ===== ВКЛАДКИ =====
 function initAdminTabs() {
     const tabs = document.querySelectorAll('.admin-tab');
     tabs.forEach(tab => {
@@ -1021,168 +1410,20 @@ function initAdminTabs() {
     });
 }
 
-function loadAdminMenu() {
-    const container = document.getElementById('adminMenuList');
-    if (!container) return;
-    
-    const menuItems = [
-        { name: "Гравлакс", price: 890, category: "Закуски" },
-        { name: "Смёрброд с креветками", price: 750, category: "Закуски" },
-        { name: "Оленина с брусничным соусом", price: 1850, category: "Горячее" },
-        { name: "Лосось с соусом из укропа", price: 1450, category: "Горячее" },
-        { name: "Кладдкака", price: 520, category: "Десерты" },
-        { name: "Аквавит", price: 450, category: "Напитки" }
-    ];
-    
-    container.innerHTML = menuItems.map(item => `
-        <div class="admin-item">
-            <div class="admin-item-info">
-                <div class="admin-item-title">${item.name}</div>
-                <div class="admin-item-meta">${item.category} • ${item.price} ₽</div>
-            </div>
-            <div class="admin-item-actions">
-                <button class="admin-edit" onclick="alert('Редактировать: ${item.name}')">✏️</button>
-                <button class="admin-delete" onclick="alert('Удалить: ${item.name}')">🗑️</button>
-            </div>
-        </div>
-    `).join('');
-}
-
-function loadAdminEvents() {
-    const container = document.getElementById('adminEventsList');
-    if (!container) return;
-    
-    const events = JSON.parse(localStorage.getItem('fjell_events') || '[]');
-    
-    if (events.length === 0) {
-        container.innerHTML = '<div class="empty-message">📭 Событий пока нет</div>';
+// ===== ЗАПУСК АДМИНКИ =====
+function initAdminPanel() {
+    const currentUser = JSON.parse(localStorage.getItem('fjell_currentUser'));
+    if (!currentUser || !currentUser.isAdmin) {
+        alert('Доступ запрещён! Требуются права администратора.');
+        window.location.href = 'index.html';
         return;
     }
-    
-    container.innerHTML = events.map(event => `
-        <div class="admin-item">
-            <div class="admin-item-info">
-                <div class="admin-item-title">${event.title}</div>
-                <div class="admin-item-meta">${event.date} в ${event.time}</div>
-            </div>
-            <div class="admin-item-actions">
-                <button class="admin-edit" onclick="alert('Редактировать: ${event.title}')">✏️</button>
-                <button class="admin-delete" onclick="alert('Удалить: ${event.title}')">🗑️</button>
-            </div>
-        </div>
-    `).join('');
+    document.getElementById('adminWelcomeMsg').innerHTML = `Добро пожаловать, ${currentUser.name}! 👋`;
+    loadAdminData();
+    initAdminTabs();
 }
 
-function loadAdminNews() {
-    const container = document.getElementById('adminNewsList');
-    if (!container) return;
-    
-    const news = JSON.parse(localStorage.getItem('fjell_news') || '[]');
-    
-    if (news.length === 0) {
-        container.innerHTML = '<div class="empty-message">📭 Новостей пока нет</div>';
-        return;
-    }
-    
-    container.innerHTML = news.map(item => `
-        <div class="admin-item">
-            <div class="admin-item-info">
-                <div class="admin-item-title">${item.title}</div>
-                <div class="admin-item-meta">${item.date}</div>
-            </div>
-            <div class="admin-item-actions">
-                <button class="admin-edit" onclick="alert('Редактировать: ${item.title}')">✏️</button>
-                <button class="admin-delete" onclick="alert('Удалить: ${item.title}')">🗑️</button>
-            </div>
-        </div>
-    `).join('');
-}
-
-function loadAdminUsers() {
-    const container = document.getElementById('adminUsersList');
-    if (!container) return;
-    
-    const users = JSON.parse(localStorage.getItem('fjell_users') || '[]');
-    const regularUsers = users.filter(u => !u.isAdmin);
-    
-    if (regularUsers.length === 0) {
-        container.innerHTML = '<div class="empty-message">👥 Пользователей пока нет</div>';
-        return;
-    }
-    
-    container.innerHTML = regularUsers.map(user => `
-        <div class="admin-item">
-            <div class="admin-item-info">
-                <div class="admin-item-title">${user.name}</div>
-                <div class="admin-item-meta">${user.email} • ${user.phone || 'телефон не указан'}</div>
-            </div>
-            <div class="admin-item-actions">
-                <button class="admin-delete" onclick="alert('Заблокировать: ${user.name}')">🔒</button>
-            </div>
-        </div>
-    `).join('');
-}
-
-function loadAdminBookings() {
-    const container = document.getElementById('adminBookingsList');
-    if (!container) return;
-    
-    const bookings = JSON.parse(localStorage.getItem('fjell_bookings') || '[]');
-    
-    if (bookings.length === 0) {
-        container.innerHTML = '<div class="empty-message">📅 Бронирований пока нет</div>';
-        return;
-    }
-    
-    container.innerHTML = bookings.map(booking => `
-        <div class="admin-item">
-            <div class="admin-item-info">
-                <div class="admin-item-title">${booking.name} • ${booking.guests} чел.</div>
-                <div class="admin-item-meta">${booking.date} в ${booking.time} • ${booking.phone}</div>
-                <div class="admin-item-meta" style="color: #f1c40f;">Статус: ${booking.status === 'pending' ? '⏳ Ожидает' : '✅ Подтверждено'}</div>
-            </div>
-            <div class="admin-item-actions">
-                <select class="admin-status-select" data-id="${booking.id}">
-                    <option value="pending" ${booking.status === 'pending' ? 'selected' : ''}>Ожидает</option>
-                    <option value="confirmed" ${booking.status === 'confirmed' ? 'selected' : ''}>Подтвердить</option>
-                    <option value="completed" ${booking.status === 'completed' ? 'selected' : ''}>Выполнено</option>
-                    <option value="cancelled" ${booking.status === 'cancelled' ? 'selected' : ''}>Отменить</option>
-                </select>
-            </div>
-        </div>
-    `).join('');
-    
-    document.querySelectorAll('.admin-status-select').forEach(select => {
-        select.addEventListener('change', function() {
-            const bookingId = parseInt(this.dataset.id);
-            const newStatus = this.value;
-            let bookings = JSON.parse(localStorage.getItem('fjell_bookings') || '[]');
-            bookings = bookings.map(b => {
-                if (b.id === bookingId) return { ...b, status: newStatus };
-                return b;
-            });
-            localStorage.setItem('fjell_bookings', JSON.stringify(bookings));
-            loadAdminBookings();
-            updateAdminStats();
-        });
-    });
-}
-
-function updateAdminStats() {
-    const menuCount = 6;
-    const events = JSON.parse(localStorage.getItem('fjell_events') || '[]');
-    const news = JSON.parse(localStorage.getItem('fjell_news') || '[]');
-    const users = JSON.parse(localStorage.getItem('fjell_users') || '[]');
-    const bookings = JSON.parse(localStorage.getItem('fjell_bookings') || '[]');
-    
-    document.getElementById('statMenu') && (document.getElementById('statMenu').textContent = menuCount);
-    document.getElementById('statEvents') && (document.getElementById('statEvents').textContent = events.length);
-    document.getElementById('statNews') && (document.getElementById('statNews').textContent = news.length);
-    document.getElementById('statUsers') && (document.getElementById('statUsers').textContent = users.filter(u => !u.isAdmin).length);
-    document.getElementById('statBookings') && (document.getElementById('statBookings').textContent = bookings.length);
-}
-
-// Запуск админки
+// Запуск админки если мы на странице admin.html
 if (document.querySelector('.admin-page')) {
     initAdminPanel();
 }
@@ -1273,4 +1514,58 @@ function updateFavoriteButton(eventId) {
         btn.innerHTML = '⭐ В избранное';
         btn.classList.remove('active');
     }
+}
+// ========== ФИКСИРОВАННАЯ МАСКА ТЕЛЕФОНА ==========
+
+function fixPhoneMask(input) {
+    // Удаляем все не-цифры
+    let digits = input.value.replace(/\D/g, '');
+    
+    // Ограничиваем 11 цифрами
+    if (digits.length > 11) digits = digits.slice(0, 11);
+    
+    // Формируем номер с фиксированными символами
+    let result = '+7';
+    
+    if (digits.length > 1) {
+        result += ' (';
+        result += digits.slice(1, 4);
+        if (digits.length > 4) result += ') ';
+        else result += ')';
+    } else if (digits.length === 1) {
+        result += ' (';
+    }
+    
+    if (digits.length > 4) {
+        result += digits.slice(4, 7);
+        if (digits.length > 7) result += '-';
+    }
+    
+    if (digits.length > 7) {
+        result += digits.slice(7, 9);
+        if (digits.length > 9) result += '-';
+    }
+    
+    if (digits.length > 9) {
+        result += digits.slice(9, 11);
+    }
+    
+    input.value = result;
+}
+
+// Применяем маску ко всем полям телефона
+function applyPhoneMasks() {
+    const phones = document.querySelectorAll('#bookingPhone, #regPhone, #profilePhone');
+    phones.forEach(phone => {
+        if (phone) {
+            phone.addEventListener('input', function() {
+                fixPhoneMask(this);
+            });
+            phone.addEventListener('focus', function() {
+                if (this.value === '' || this.value === '+7') {
+                    this.value = '+7';
+                }
+            });
+        }
+    });
 }
