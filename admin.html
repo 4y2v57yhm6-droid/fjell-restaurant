@@ -44,7 +44,7 @@
     <div class="container">
         <div class="admin-welcome">
             <h1>Панель управления</h1>
-            <p>Добро пожаловать в административную панель ресторана Fjell</p>
+            <p id="adminWelcomeMsg">Добро пожаловать в административную панель</p>
         </div>
 
         <!-- Статистика -->
@@ -53,7 +53,7 @@
                 <div class="stat-icon">🍽️</div>
                 <div class="stat-info">
                     <h3 id="statMenu">0</h3>
-                    <p>Блюд в меню</p>
+                    <p>Блюд</p>
                 </div>
             </div>
             <div class="stat-card">
@@ -100,11 +100,9 @@
             <div class="admin-card">
                 <div class="admin-card-header">
                     <h3>Управление меню</h3>
-                    <button class="btn-add" onclick="alert('Добавление блюда')">+ Добавить блюдо</button>
+                    <button class="btn-add" onclick="openModal('menu')">+ Добавить блюдо</button>
                 </div>
-                <div id="adminMenuList" class="admin-items-list">
-                    <!-- Загружается -->
-                </div>
+                <div id="menuList" class="admin-items-list"></div>
             </div>
         </div>
 
@@ -113,11 +111,9 @@
             <div class="admin-card">
                 <div class="admin-card-header">
                     <h3>Управление событиями</h3>
-                    <button class="btn-add" onclick="alert('Добавление события')">+ Добавить событие</button>
+                    <button class="btn-add" onclick="openModal('event')">+ Добавить событие</button>
                 </div>
-                <div id="adminEventsList" class="admin-items-list">
-                    <!-- Загружается -->
-                </div>
+                <div id="eventsList" class="admin-items-list"></div>
             </div>
         </div>
 
@@ -126,11 +122,9 @@
             <div class="admin-card">
                 <div class="admin-card-header">
                     <h3>Управление новостями</h3>
-                    <button class="btn-add" onclick="alert('Добавление новости')">+ Добавить новость</button>
+                    <button class="btn-add" onclick="openModal('news')">+ Добавить новость</button>
                 </div>
-                <div id="adminNewsList" class="admin-items-list">
-                    <!-- Загружается -->
-                </div>
+                <div id="newsList" class="admin-items-list"></div>
             </div>
         </div>
 
@@ -138,9 +132,7 @@
         <div id="tabUsers" class="admin-tab-content">
             <div class="admin-card">
                 <h3>Список пользователей</h3>
-                <div id="adminUsersList" class="admin-items-list">
-                    <!-- Загружается -->
-                </div>
+                <div id="usersList" class="admin-items-list"></div>
             </div>
         </div>
 
@@ -148,13 +140,29 @@
         <div id="tabBookings" class="admin-tab-content">
             <div class="admin-card">
                 <h3>Все бронирования</h3>
-                <div id="adminBookingsList" class="admin-items-list">
-                    <!-- Загружается -->
-                </div>
+                <div id="bookingsList" class="admin-items-list"></div>
             </div>
         </div>
     </div>
 </main>
+
+<!-- Модальное окно -->
+<div id="adminModal" class="admin-modal">
+    <div class="admin-modal-content">
+        <div class="admin-modal-header">
+            <h2 id="modalTitle">Добавить</h2>
+            <span class="admin-modal-close" onclick="closeModal()">&times;</span>
+        </div>
+        <div class="admin-modal-body">
+            <form id="adminForm">
+                <input type="hidden" id="modalType">
+                <input type="hidden" id="editId">
+                <div id="modalFields"></div>
+                <button type="submit" class="btn btn-primary btn-full">Сохранить</button>
+            </form>
+        </div>
+    </div>
+</div>
 
 <footer class="footer">
     <div class="container">
